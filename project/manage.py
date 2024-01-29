@@ -2,6 +2,19 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import pandas as pd
+from worldmap.models import WeatherData
+
+# Replace the file path with your actual file path
+file_path = "C:\\Users\\caleb\\OneDrive\\Desktop\\MGMT478-group3\\Bloomington Weather Data.csv"
+
+# Read CSV into a DataFrame
+df = pd.read_csv(file_path)
+
+# Convert DataFrame to a list of dictionaries and create WeatherData objects
+data_to_insert = df.to_dict(orient='records')
+WeatherData.objects.bulk_create([WeatherData(**data) for data in data_to_insert])
+
 
 
 def main():
