@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import map_view
+from worldmap.views import map_view
 
 urlpatterns = [
     path('map/', map_view, name='map_view'),
