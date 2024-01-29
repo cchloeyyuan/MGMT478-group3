@@ -1,13 +1,24 @@
+# views.py
 from django.shortcuts import render
-
-# This python file is used to process user requests and returning appropriate responses. 
-# It determines the logic of our webpage and determines what data to display and how to update data
 import folium
 from .models import WeatherData
+import pandas as pd
 
 def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
+
+    # If data doesn't exist in the database, insert it
+    if not weather_stations:
+        file_path = "C:\\Users\\caleb\\OneDrive\\Desktop\\MGMT478-group3\\Bloomington Weather Data.csv"
+        df = pd.read_csv(file_path)
+
+        # Fill any NaN values with True in boolean fields
+        df[['WT01', 'WT03', 'WT04', 'WT05', 'WT06', 'WT11']] = df[['WT01', 'WT03', 'WT04', 'WT05', 'WT06', 'WT11']].fillna(True)
+
+        # Convert DataFrame to a list of dictionaries and create WeatherData objects
+        data_to_insert = df.to_dict(orient='records')
+        WeatherData.objects.bulk_create([WeatherData(**data) for data in data_to_insert])
 
     # Create a Folium map centered at the first station's location
     my_map = folium.Map(location=[weather_stations.first().LATITUDE, weather_stations.first().LONGITUDE], zoom_start=10)
@@ -21,4 +32,3 @@ def map_view(request):
     map_html = my_map._repr_html_()
 
     return render(request, 'map.html', {'map_html': map_html})
-

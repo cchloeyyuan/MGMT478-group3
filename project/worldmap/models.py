@@ -24,3 +24,11 @@ class WeatherData(models.Model):
     WT05 = models.BooleanField(default=False)
     WT06 = models.BooleanField(default=False)
     WT11 = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Convert NaN values to None before saving to the database
+        for field in self._meta.fields:
+            value = getattr(self, field.attname)
+            if pd.isna(value):
+                setattr(self, field.attname, None)
+        super(WeatherData, self).save(*args, **kwargs)
