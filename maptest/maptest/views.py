@@ -10,7 +10,7 @@ def map_view(request):
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
-        file_path = "/Users/chloeyuan/Desktop/478group3/projecttest/Bloomington Weather Data.csv"
+        file_path = "/Users/chloeyuan/Desktop/478group3/maptest/Bloomington Weather Data.csv"
         df = pd.read_csv(file_path)
 
         # Fill any NaN values with True in boolean fields
