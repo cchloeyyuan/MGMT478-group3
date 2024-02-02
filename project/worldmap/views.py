@@ -8,10 +8,9 @@ def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
     #df = pd.DataFrame() #this df was initiated outside of the if statement so it can be referenced throughout the file
-    #file_path = "C:\\Users\\caleb\\OneDrive\\Desktop\\MGMT478-group3\\Bloomington Weather Data.csv"
-    #df = pd.read_csv(file_path)
-    url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Bloomington%20Weather%20Data.csv'
-    df = pd.read_csv(url)
+    file_path = "C:\\Users\\caleb\\OneDrive\\Desktop\\MGMT478-group3\\Bloomington Weather Data.csv"
+    df = pd.read_csv(file_path)
+
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
