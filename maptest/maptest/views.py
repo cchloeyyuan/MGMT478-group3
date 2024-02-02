@@ -10,8 +10,11 @@ def map_view(request):
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
-        file_path = "/Users/chloeyuan/Desktop/478group3/maptest/Bloomington Weather Data.csv"
-        df = pd.read_csv(file_path)
+        #file_path = "/Users/chloeyuan/Desktop/478group3/maptest/Bloomington Weather Data.csv"
+        #df = pd.read_csv(file_path)
+        url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Bloomington%20Weather%20Data.csv'
+        df = pd.read_csv(url)
+
 
         # Fill any NaN values with True in boolean fields
         df[['WT01', 'WT03', 'WT04', 'WT05', 'WT06', 'WT11']] = df[['WT01', 'WT03', 'WT04', 'WT05', 'WT06', 'WT11']].fillna(True)
