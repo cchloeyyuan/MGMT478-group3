@@ -1,6 +1,7 @@
 # views.py
 from django.shortcuts import render
 import folium
+from folium.plugins import HeatMap
 from .models import WeatherData
 import pandas as pd
 
@@ -21,7 +22,7 @@ def map_view(request):
 
     # Create a Folium map centered at the first station's location
     my_map = folium.Map(location=[weather_stations.first().LATITUDE, weather_stations.first().LONGITUDE], zoom_start=10)
-
+    
     # Calculate average TMIN, TMAX, and TOBS for each unique station
     # Assuming your 'STATION' field is a unique identifier for each station
     station_averages = df.groupby('STATION').agg({
@@ -32,6 +33,10 @@ def map_view(request):
         'TMAX': 'mean',
         'TOBS': 'mean'
     }).reset_index()
+
+    # add the heatmap test to see if run
+    heat_map_data = station_averages[['LATITUDE', 'LONGITUDE']].values.tolist()
+    HeatMap(heat_map_data).add_to(my_map)
 
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
