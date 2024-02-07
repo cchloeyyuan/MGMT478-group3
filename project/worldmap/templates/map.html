@@ -32,25 +32,25 @@
         display: block;
       }
     }
-    /* 添加地图容器样式 */
+    /* Add map container style */
     .map-container {
-      height: 500px; /* 或根据需要调整 */
+      height: 500px; /* adjust as needed */
     }
     </style>
 </head>
 <body>
 
-<h2>Responsive Navigation Bar with Icons</h2>
+<h2>Weather Map</h2>
 <p>Try to resize the browser window to see the responsive effect.</p>
 
 <div class="navbar">
   <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
-  <a href="#"><i class="fa fa-fw fa-search"></i> Search</a> 
-  <a href="#"><i class="fa fa-fw fa-envelope"></i> Contact</a> 
-  <a href="#"><i class="fa fa-fw fa-user"></i> Login</a>
+  <a href="#"><i class="fa fa-fw fa-location"></i> Geographic Location</a> 
+  <a href="#"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
+  <a href="#"><i class="fa fa-fw fa-contact"></i> Contact</a>
 </div>
 
-<!-- 地图容器 -->
+<!-- map container -->
 <div class="map-container">
     {{ map_html|safe }}
 </div>
