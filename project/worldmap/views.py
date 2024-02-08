@@ -2,6 +2,7 @@
 from django.shortcuts import render
 import folium
 from folium.plugins import HeatMap
+import requests
 from .models import WeatherData
 import pandas as pd
 
@@ -43,6 +44,33 @@ def map_view(request):
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C<br>Avg TOBS: {row['TOBS']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
+
+    #Get link to JSON file folders
+    #geoJSON_Files = 'https://github.com/cchloeyyuan/MGMT478-group3/tree/7b2b9305b13fdf4ac1bfb8fe1a8b2281e50eb5fd/State-zip-code-GeoJSON-master'
+    #response = requests.get(geoJSON_Files)
+    
+
+    # Check if the request was successful
+    #if response.status_code == 200:
+        # Parse the JSON response
+    #    folder_contents = response.json()
+    #    print(folder_contents)
+
+        # Count the number of files in the folder
+    #    file_count = len(folder_contents)
+         #iterate through all files in folders
+    #    for filename in geoJSON_Files:
+    #        if '.json' in folder_contents.values():
+                #create url for json file
+    #            cordfile =  folder_contents['path']
+    #            cordfile.remove('State-zip-code-GeoJSON-master')
+    #            cordfile = geoJSON_Files + cordfile 
+    #            HeatMap(cordfile).add_to(my_map)
+                # print(os.path.join(directory, filename))
+    #        else:
+    #              continue
+    
+    
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
 
