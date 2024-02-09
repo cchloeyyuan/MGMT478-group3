@@ -2,9 +2,13 @@
 from django.shortcuts import render
 import folium
 from folium.plugins import HeatMap
-import requests
 from .models import WeatherData
 import pandas as pd
+from django.shortcuts import render
+from .forms import CoordinatesForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 
 def map_view(request):
     # Get weather station data from the model
@@ -45,33 +49,41 @@ def map_view(request):
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
 
-    #Get link to JSON file folders
-    #geoJSON_Files = 'https://github.com/cchloeyyuan/MGMT478-group3/tree/7b2b9305b13fdf4ac1bfb8fe1a8b2281e50eb5fd/State-zip-code-GeoJSON-master'
-    #response = requests.get(geoJSON_Files)
-    
-
-    # Check if the request was successful
-    #if response.status_code == 200:
-        # Parse the JSON response
-    #    folder_contents = response.json()
-    #    print(folder_contents)
-
-        # Count the number of files in the folder
-    #    file_count = len(folder_contents)
-         #iterate through all files in folders
-    #    for filename in geoJSON_Files:
-    #        if '.json' in folder_contents.values():
-                #create url for json file
-    #            cordfile =  folder_contents['path']
-    #            cordfile.remove('State-zip-code-GeoJSON-master')
-    #            cordfile = geoJSON_Files + cordfile 
-    #            HeatMap(cordfile).add_to(my_map)
-                # print(os.path.join(directory, filename))
-    #        else:
-    #              continue
-    
-    
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
 
     return render(request, 'map.html', {'map_html': map_html})
+
+def map_request(request):
+    # Initialize the map with some default state
+    #my_map = folium.Map(location=[default_latitude, default_longitude], zoom_start=10)
+    form = CoordinatesForm()
+
+    if request.method == 'POST':
+        form = CoordinatesForm(request.POST)
+        if form.is_valid():
+            latitude = form.cleaned_data['latitude']
+            longitude = form.cleaned_data['longitude']
+            lat_direction = form.cleaned_data['lat_direction']
+            long_direction = form.cleaned_data['long_direction']
+
+            # Adjust latitude and longitude based on direction
+            latitude = latitude if lat_direction == 'N' else -latitude
+            longitude = longitude if long_direction == 'E' else -longitude
+            
+
+            my_map = folium.Map(location=[float(latitude), float(longitude)], zoom_start=14)
+            folium.Marker([float(latitude), float(longitude)], popup="Your Location").add_to(my_map)
+            map_html = my_map._repr_html_()
+            
+            return render(request, 'map.html', {'map_html': map_html})
+            
+        else:
+            # 如果是GET请求，仅渲染带有空表单的页面
+            form = CoordinatesForm()
+            return render(request, 'map.html', {'form': form})# Create a new map object with the submitted coordinates
+            #my_map = folium.Map(location=[latitude, longitude], zoom_start=14)
+            #folium.Marker([latitude, longitude], popup="Your Location").add_to(my_map)
+
+    #map_html = my_map._repr_html_()
+    #return render(request, 'map.html', {'form': form, 'map_html': map_html})

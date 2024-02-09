@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from worldmap.views import map_view
+from worldmap.views import map_request
 
 urlpatterns = [
     path('map/', map_view, name='map_view'),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('map_request/', map_request, name='map_request'),
 ]

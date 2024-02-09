@@ -1,11 +1,10 @@
-<!-- worldmap/templates/map.html -->
-<!DOCTYPE html>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Weather Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
     body {font-family: Arial, Helvetica, sans-serif;}
     .navbar {
@@ -32,67 +31,70 @@
         display: block;
       }
     }
-    /* Add map container style */
     .map-container {
-      height: 500px; /* adjust as needed */
+      height: 500px; /* Adjust as needed */
     }
     </style>
 </head>
 <body>
 
-<h2>Weather Map</h2>
-<p>Try to resize the browser window to see the responsive effect.</p>
+<div class="header">
+    <h2>Weather Map</h2>
+    <p>First Draft</p>
+</div>
 
 <div class="navbar">
   <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
-  <a href="#"><i class="fa fa-fw fa-location"></i> Geographic Location</a> 
+  <!-- Trigger/Open The Modal -->
+  <a href="#" data-toggle="modal" data-target="#locationModal"><i class="fa fa-fw fa-location"></i> Geographic Location</a>
   <a href="#"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
   <a href="#"><i class="fa fa-fw fa-contact"></i> Contact</a>
 </div>
 
-<!-- map container -->
+<!-- The Modal -->
+<div id="locationModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+<!-- Modal content-->
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Enter Geographic Location</h5>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+  </div>
+  <div class="modal-body">
+    <form method="post" action="{% url 'map_request' %}"> <!-- Ensure this is the correct URL name -->
+        {% csrf_token %}
+        {{ form.as_p }} 
+        <label for="latitude">Latitude:</label><br>
+        <input type="text" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+        <select name="lat_direction">
+        <option value="N">North</option>
+        <option value="S">South</option>
+        </select><br>
+        <label for="longitude">Longitude:</label><br>
+        <input type="text" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+        <select name="long_direction">
+        <option value="E">East</option>
+        <option value="W">West</option>
+        </select><br>
+        <br>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    
+     </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Map container -->
 <div class="map-container">
     {{ map_html|safe }}
 </div>
 
-
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-body {font-family: Arial, Helvetica, sans-serif;}
-
-.navbar {
-  width: 100%;
-  background-color: #555;
-  overflow: auto;
-}
-
-.navbar a {
-  float: left;
-  padding: 12px;
-  color: white;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.navbar a:hover {
-  background-color: #000;
-}
-
-.active {
-  background-color: #04AA6D;
-}
-
-@media screen and (max-width: 500px) {
-  .navbar a {
-    float: none;
-    display: block;
-  }
-}
-
-
-
+<!-- Include jQuery and Bootstrap JS for the modal -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
-</html> 
+</html>
