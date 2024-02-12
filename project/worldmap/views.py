@@ -34,9 +34,12 @@ def map_view(request):
         'NAME': 'first',
         'LATITUDE': 'first', 
         'LONGITUDE': 'first',
+        'AWND': 'mean',
+        'PRCP': 'mean',
+        'SNOW': 'mean',
+        'TAVG': 'mean',
         'TMIN': 'mean',
-        'TMAX': 'mean',
-        'TOBS': 'mean'
+        'TMAX': 'mean'
     }).reset_index()
 
     # add the heatmap test to see if run
@@ -45,7 +48,7 @@ def map_view(request):
 
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
-        popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C<br>Avg TOBS: {row['TOBS']}°C"
+        popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
 
@@ -80,6 +83,7 @@ def map_request(request):
             
         else:
             # 如果是GET请求，仅渲染带有空表单的页面
+            # If it's a GET request, only render the page with the empty form
             form = CoordinatesForm()
             return render(request, 'map.html', {'form': form})# Create a new map object with the submitted coordinates
             #my_map = folium.Map(location=[latitude, longitude], zoom_start=14)
