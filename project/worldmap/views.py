@@ -25,8 +25,10 @@ def map_view(request):
     # Create a Folium map centered at the first station's location
     my_map = folium.Map(location=[weather_stations.first().LATITUDE, weather_stations.first().LONGITUDE], zoom_start=10)
     
-    # Calculate average TMIN, TMAX, and TOBS for each unique station
+    # Calculate average weather statistics for each station
     # Assuming your 'STATION' field is a unique identifier for each station
+    numeric_cols = ['AWND', 'PRCP', 'SNOW', 'TAVG', 'TMIN', 'TMAX']
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
     station_averages = df.groupby('STATION').agg({
         'NAME': 'first',
         'LATITUDE': 'first', 

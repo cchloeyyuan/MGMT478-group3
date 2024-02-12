@@ -5,7 +5,7 @@ from django.db import models
 
 class WeatherData(models.Model):
     STATION = models.CharField(max_length=50)
-    NAME = models.CharField(max_length=100)
+    NAME = models.CharField(max_length=200)
     LATITUDE = models.FloatField()
     LONGITUDE = models.FloatField()
     ELEVATION = models.FloatField()
