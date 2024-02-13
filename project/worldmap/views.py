@@ -55,6 +55,13 @@ def map_view(request):
     # Gets json file from url
     # Need to find a way to loop through all the json files
     json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
+ #   for feature in json_file['features']:
+    # Access the coordinates array within each feature
+ #       jcoordinates = feature['geometry']['coordinates']
+ #       print(jcoordinates)
+               
+                
+            
     # Adds json file to the map
     folium.GeoJson(json_file).add_to(my_map)
 
