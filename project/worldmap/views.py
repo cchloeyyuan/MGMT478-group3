@@ -52,18 +52,21 @@ def map_view(request):
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
-    # Gets json file from url
-    # Need to find a way to loop through all the json files
+
     current_loc = os.getcwd()
     final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
     print(final_directory)
+    i = 0
     for file in os.listdir(final_directory):
+        if i == 3:
+            break
+        print(i)
         print(file)
         if file.endswith(".json"):
+            i+=1
             print(file)
             json_file = os.path.join(final_directory, file)
             print(json_file)
-        #    json_file.json()
             folium.GeoJson(json_file).add_to(my_map)
     
  #   json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
