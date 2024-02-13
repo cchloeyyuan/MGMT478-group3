@@ -6,10 +6,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+    header {
+    background-color: #848181;
+    padding: 30px;
+    text-align: center;
+    font-size: 35px;
+    color: white;
+    }
+    body1 {
+      text-align: center;
+    }
     body {font-family: Arial, Helvetica, sans-serif;}
     .navbar {
       width: 100%;
-      background-color: #555;
+      background-color: #333;
       overflow: auto;
     }
     .navbar a {
@@ -39,8 +49,13 @@
 <body>
 
 <div class="header">
+  <header>
     <h2>Weather Map</h2>
-    <p>First Draft</p>
+  </header> 
+  <body1>
+    <p> First Draft</p>
+  </body1> 
+    
 </div>
 
 <div class="navbar">
@@ -112,8 +127,13 @@
     {{ map_html|safe }}
     <style>
     .map-container {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Add shadow */
+      border: 2px solid #ddd; /* Add border */
+      margin-top: 10px; /* top margin */
+      margin-left: auto; 
+      margin-right: auto; 
       width: 100%; /* Use 100% width on small screen devices */
-      height: 700px; /* fixed hight */
+      height: 400px; /* fixed hight */
   }
     @media (min-width: 800px) {
         .map-container {
