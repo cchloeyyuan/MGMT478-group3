@@ -52,33 +52,23 @@ def map_view(request):
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
-
+    # get local filepath for project
     current_loc = os.getcwd()
+    # add zip code folder to filepath
     final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
-    print(final_directory)
     i = 0
+    # loop through file for all files
     for file in os.listdir(final_directory):
+        #break after 3 json files are added
         if i == 3:
             break
-        print(i)
-        print(file)
+        # if json file
         if file.endswith(".json"):
             i+=1
-            print(file)
+            # get filepath of json file
             json_file = os.path.join(final_directory, file)
-            print(json_file)
-            folium.GeoJson(json_file).add_to(my_map)
-    
- #   json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
- #   for feature in json_file['features']:
-    # Access the coordinates array within each feature
- #       jcoordinates = feature['geometry']['coordinates']
- #       print(jcoordinates)
-               
-                
-            
-    # Adds json file to the map
-    
+            #add json file to map
+            folium.GeoJson(json_file).add_to(my_map)    
 
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
