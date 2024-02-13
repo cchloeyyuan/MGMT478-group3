@@ -88,9 +88,24 @@
 </div>
 
 <!-- Map container -->
+
 <div class="map-container">
+  
     {{ map_html|safe }}
+    <style>
+    .map-container {
+      width: 100%; /* 在小屏幕设备上使用100%宽度 */
+      height: 700px; /* 高度设置为固定值 */
+  }
+    @media (min-width: 768px) {
+        .map-container {
+            width: 1000px; /* 在屏幕宽度大于768px时使用800px宽度 */
+            height: 650px; /* 高度设置为固定值 */
+        }
+  }
+</style> 
 </div>
+
 
 <!-- Include jQuery and Bootstrap JS for the modal -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
