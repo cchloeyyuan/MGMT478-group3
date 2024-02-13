@@ -8,7 +8,7 @@ from django.shortcuts import render
 from .forms import CoordinatesForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+import requests
 
 def map_view(request):
     # Get weather station data from the model
@@ -44,12 +44,19 @@ def map_view(request):
     # add the heatmap test to see if run
     heat_map_data = station_averages[['LATITUDE', 'LONGITUDE']].values.tolist()
     HeatMap(heat_map_data).add_to(my_map)
+    
 
+    
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
+    # Gets json file from url
+    # Need to find a way to loop through all the json files
+    json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
+    # Adds json file to the map
+    folium.GeoJson(json_file).add_to(my_map)
 
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
