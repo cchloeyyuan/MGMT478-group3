@@ -8,7 +8,7 @@ from django.shortcuts import render
 from .forms import CoordinatesForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-import requests
+import requests, os
 
 def map_view(request):
     # Get weather station data from the model
@@ -54,7 +54,19 @@ def map_view(request):
 
     # Gets json file from url
     # Need to find a way to loop through all the json files
-    json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
+    current_loc = os.getcwd()
+    final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
+    print(final_directory)
+    for file in os.listdir(final_directory):
+        print(file)
+        if file.endswith(".json"):
+            print(file)
+            json_file = os.path.join(final_directory, file)
+            print(json_file)
+        #    json_file.json()
+            folium.GeoJson(json_file).add_to(my_map)
+    
+ #   json_file = requests.get("https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main//State-zip-code-GeoJSON-master/in_indiana_zip_codes_geo.min.json").json()
  #   for feature in json_file['features']:
     # Access the coordinates array within each feature
  #       jcoordinates = feature['geometry']['coordinates']
@@ -63,7 +75,7 @@ def map_view(request):
                 
             
     # Adds json file to the map
-    folium.GeoJson(json_file).add_to(my_map)
+    
 
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
