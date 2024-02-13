@@ -60,7 +60,7 @@ def map_view(request):
     # loop through file for all files
     for file in os.listdir(final_directory):
         #break after 3 json files are added
-        if i == 3:
+        if i == 4:
             break
         # if json file
         if file.endswith(".json"):
