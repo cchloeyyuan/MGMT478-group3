@@ -47,15 +47,15 @@
   <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
   <!-- Trigger/Open The Modal -->
   <a href="#" data-toggle="modal" data-target="#locationModal"><i class="fa fa-fw fa-location"></i> Geographic Location</a>
-  <a href="#"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
+  <a href="#"data-toggle="modal" data-target="#diagramsModal"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
   <a href="#"><i class="fa fa-fw fa-contact"></i> Contact</a>
 </div>
 
-<!-- The Modal -->
+<!-- The Location Modal -->
 <div id="locationModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
-<!-- Modal content-->
+<!-- Location Modal content-->
 <div class="modal-content">
   <div class="modal-header">
     <h5 class="modal-title">Enter Geographic Location</h5>
@@ -86,6 +86,24 @@
 
   </div>
 </div>
+<!-- The Diagrams Modal -->
+<div id="diagramsModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Diagram Type</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Heatmap</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Histogram</a>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- Map container -->
 
@@ -94,13 +112,13 @@
     {{ map_html|safe }}
     <style>
     .map-container {
-      width: 100%; /* 在小屏幕设备上使用100%宽度 */
-      height: 700px; /* 高度设置为固定值 */
+      width: 100%; /* Use 100% width on small screen devices */
+      height: 700px; /* fixed hight */
   }
-    @media (min-width: 768px) {
+    @media (min-width: 800px) {
         .map-container {
-            width: 1000px; /* 在屏幕宽度大于768px时使用800px宽度 */
-            height: 650px; /* 高度设置为固定值 */
+            width: 1000px; /* Use 1000px width when screen width is larger than 768px */
+            height: 650px; /* fixed hight */
         }
   }
 </style> 
