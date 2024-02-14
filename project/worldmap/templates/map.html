@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
     header {
-    background-color: #848181;
+    background-color: #a7a9a8;
     padding: 30px;
     text-align: center;
     font-size: 35px;
@@ -30,7 +30,7 @@
       font-size: 17px;
     }
     .navbar a:hover {
-      background-color: #000;
+      background-color: #04AA6D
     }
     .active {
       background-color: #04AA6D;
@@ -61,9 +61,61 @@
 <div class="navbar">
   <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
   <!-- Trigger/Open The Modal -->
+  <a href="#"data-toggle="modal" data-target="#datachoicesModal"><i class="fa fa-fw fa-data"></i> Data Type</a> 
+  <a href="#"data-toggle="modal" data-target="#dateModal"><i class="fa fa-fw fa-date"></i> Date</a> 
   <a href="#" data-toggle="modal" data-target="#locationModal"><i class="fa fa-fw fa-location"></i> Geographic Location</a>
   <a href="#"data-toggle="modal" data-target="#diagramsModal"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
   <a href="#"><i class="fa fa-fw fa-contact"></i> Contact</a>
+  
+</div>
+
+<!-- The datachoices Modal -->
+<div id="datachoicesModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Data Type</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Temperature</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Cloud-average</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Precipitation</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- The Date Modal -->
+<div id="dateModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+<!-- Date Modal content-->
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Enter Date</h5>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+  </div>
+  <div class="modal-body"> 
+        <i>Please enter date format by DD/MM/YY </i> 
+        <br>
+        <br>
+        <label for="From">From:</label><br>
+        <input type="text" id="starttime" name="from" >
+        </select><br>
+        <label for="To">To:</label><br>
+        <input type="text" id="endtime" name="to">
+        </select><br>
+        <br>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    
+     </form>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- The Location Modal -->
@@ -114,6 +166,12 @@
       <div class="modal-body">
         <a href="#" class="btn btn-primary" data-dismiss="modal">Heatmap</a>
         <a href="#" class="btn btn-primary" data-dismiss="modal">Histogram</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Line-Chart</a>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Column-Chart</a>
+        <br>
+        <br>
+        <a href="#" class="btn btn-primary" data-dismiss="modal">Combo-Chart</a>
+
       </div>
     </div>
 
