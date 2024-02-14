@@ -76,12 +76,8 @@ WSGI_APPLICATION = 'weather.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydb',    # Name of your MySQL database
-        'USER': 'root',   # MySQL username
-        'PASSWORD': 'connect', # MySQL password
-        'HOST': 'localhost',            
-        'PORT': '3306',                
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
