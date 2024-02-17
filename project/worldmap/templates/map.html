@@ -1,211 +1,262 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weather Map</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-    header {
+  <title>Weather Map</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <!-- jQuery and Bootstrap  -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <!-- CSS styles here -->
+</head>
+<body>
+<style>
+  header {
     background-color: #a7a9a8;
     padding: 30px;
     text-align: center;
     font-size: 35px;
     color: white;
-    }
-    body1 {
-      text-align: center;
-    }
-    body {font-family: Arial, Helvetica, sans-serif;}
-    .navbar {
-      width: 100%;
-      background-color: #333;
-      overflow: auto;
-    }
-    .navbar a {
-      float: left;
-      padding: 12px;
-      color: white;
-      text-decoration: none;
-      font-size: 17px;
-    }
-    .navbar a:hover {
-      background-color: #04AA6D
-    }
-    .active {
-      background-color: #04AA6D;
-    }
-    @media screen and (max-width: 500px) {
-      .navbar a {
-        float: none;
-        display: block;
-      }
-    }
-    .map-container {
-      height: 500px; /* Adjust as needed */
-    }
-    </style>
-</head>
-<body>
+}
 
-<div class="header">
-  <header>
-    <h2>Weather Map</h2>
-  </header> 
-  <body1>
-    <p> First Draft</p>
-  </body1> 
-    
-</div>
+body {font-family: Arial, Helvetica, sans-serif;}
 
-<div class="navbar">
-  <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
-  <!-- Trigger/Open The Modal -->
-  <a href="#"data-toggle="modal" data-target="#datachoicesModal"><i class="fa fa-fw fa-data"></i> Data Type</a> 
-  <a href="#"data-toggle="modal" data-target="#dateModal"><i class="fa fa-fw fa-date"></i> Date</a> 
-  <a href="#" data-toggle="modal" data-target="#locationModal"><i class="fa fa-fw fa-location"></i> Geographic Location</a>
-  <a href="#"data-toggle="modal" data-target="#diagramsModal"><i class="fa fa-fw fa-diagrams"></i> Diagrams</a> 
-  <a href="#"><i class="fa fa-fw fa-contact"></i> Contact</a>
+.navbar {
+    width: 100%;
+    background-color: #333;
+    overflow: auto;
+}
+
+.nav-links {
+    list-style-type: none;
+    padding: 0;
+}
+
+.nav-links li {
+    display: inline;
+    margin-right: 10px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+    color: #0275d8;
+}
+
+.tab-content {
+    display: none;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-top: 5px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.page-container {
+    display: flex;
+    padding: 20px;
+    flex-direction: row;
+}
+
+.control-panel {
+    width: 300px; /* Control the width of the control panel */
+    margin-left: 20px; /* Space between map and control panel */
+    overflow-y: auto; /* Scroll if content is too long */
+    padding: 10px; /* Padding around the content */
+}
+
+.control-panel .form-group {
+    margin-bottom: 10px;
+}
+
+.control-panel label {
+    display: block; /* Ensure the label is on a new line */
+    margin-bottom: 0.5rem;
+}
+
+.control-panel input[type="text"],
+.control-panel select,
+.control-panel .btn {
+    width: 100%; /* Make sure each form element fills its container */
+}
+
+.control-panel .checkbox-group {
+    margin-bottom: 0.5rem;
+}
+
+.map-container {
+    flex-grow: 1; /* Allow the map to grow and fill the space */
+    padding: 0; /* Remove padding */
+    margin-top: 10px; /* Top margin */
+    margin-right: 20px; /* Right margin, match the left margin of control panel */
+    height: 100%; /* Height based on the width of the viewport */
+    max-height: 800px; /* You can set a max height if you want */
+    overflow: hidden; /* Hide overflow */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Optional shadow */
+    border: 2px solid #ddd; /* Optional border */
+}
+
+
+
+
+</style>
+
+<header class="header">
+  <h2>Weather Map</h2>
+</header> 
+
+<div class="page-container">
+    <div class="map-container">
+      
+      {{ map_html|safe }}
   
-</div>
+    </div>
+      
+  <!-- side panel -->
+  <div class="side-panel">
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#data-display" class="active">Data Display</a></li>
+          <li><a href="#visualization">Visualization</a></li>
 
-<!-- The datachoices Modal -->
-<div id="datachoicesModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+        </ul>
+      </nav>
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Select Data Type</h5>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <div id="data-display" class="tab-content active">
+        <div class="data-display-section mb-3 p-3 border rounded">
+          <h4>Data Display</h4>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="temperatureCheck">
+            <label class="form-check-label" for="temperatureCheck">Temperature</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="cloudCheck">
+            <label class="form-check-label" for="cloudCheck">Cloud Coverage</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="precipitationCheck">
+            <label class="form-check-label" for="precipitationCheck">Precipitation</label>
+        </div>
+      
+
+      <!-- Date Range Inputs -->
+      
+        <div class="form-group">
+          <br>
+          <h4>Time Period</h4>
+          <label for="fromDate">From:</label>
+          <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
+        </div>
+        <div class="form-group">
+          <label for="toDate">To:</label>
+          <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
+          <br>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      
+        <div class="form-group">
+            <!-- geo inpiut -->
+          <h4><label for="locationDropdown">Geographic Location</label></h4>
+          <div class="dropdown-menu" aria-labelledby="locationDropdown"></div>
+              <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
+                  {% csrf_token %}
+                  {{ form.as_p }} 
+
+                  <div class="form-group">
+                      <label for="latitude">Latitude:</label>
+                      <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+                      <select name="lat_direction" class="form-control mt-2">
+                          <option value="N">North</option>
+                          <option value="S">South</option>
+                      </select>
+                  
+                  <div class="form-group">
+                      <label for="longitude">Longitude:</label>
+                      <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+                      <select name="long_direction" class="form-control mt-2">
+                          <option value="E">East</option>
+                          <option value="W">West</option>
+                      </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
       </div>
-      <div class="modal-body">
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Temperature</a>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Cloud-average</a>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Precipitation</a>
+
+  <!-- Data Visualization Section -->
+    <br>
+  <div id="visualization" class="tab-content"> 
+      <!-- Visualization content here -->
+
+    <div class="data-visualization-section mb-3 p-3 border rounded">
+      <h4>Data Visualization</h4>
+      <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
+          <label class="form-check-label" for="lineChartCheck">Line Chart</label>
+      </div>
+      <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
+          <label class="form-check-label" for="columnChartCheck">Column Chart</label>
+      </div>
+      <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
+          <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
       </div>
     </div>
+  </div>
 
+
+  <div class="Datadowload-section mb-3 p-3 border rounded">
+    <h4>Data/Chart Download</h4>
+    <button type="submit" class="btn btn-primary">Download</button>
   </div>
 </div>
-<!-- The Date Modal -->
-<div id="dateModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-<!-- Date Modal content-->
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title">Enter Date</h5>
-    <button type="button" class="close" data-dismiss="modal">&times;</button>
-  </div>
-  <div class="modal-body"> 
-        <i>Please enter date format by DD/MM/YY </i> 
-        <br>
-        <br>
-        <label for="From">From:</label><br>
-        <input type="text" id="starttime" name="from" >
-        </select><br>
-        <label for="To">To:</label><br>
-        <input type="text" id="endtime" name="to">
-        </select><br>
-        <br>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    
-     </form>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- The Location Modal -->
-<div id="locationModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-<!-- Location Modal content-->
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title">Enter Geographic Location</h5>
-    <button type="button" class="close" data-dismiss="modal">&times;</button>
-  </div>
-  <div class="modal-body">
-    <form method="post" action="{% url 'map_request' %}"> <!-- Ensure this is the correct URL name -->
-        {% csrf_token %}
-        {{ form.as_p }} 
-        <label for="latitude">Latitude:</label><br>
-        <input type="text" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-        <select name="lat_direction">
-        <option value="N">North</option>
-        <option value="S">South</option>
-        </select><br>
-        <label for="longitude">Longitude:</label><br>
-        <input type="text" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-        <select name="long_direction">
-        <option value="E">East</option>
-        <option value="W">West</option>
-        </select><br>
-        <br>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    
-     </form>
-      </div>
-    </div>
-
-  </div>
-</div>
-<!-- The Diagrams Modal -->
-<div id="diagramsModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Select Diagram Type</h5>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Heatmap</a>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Histogram</a>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Line-Chart</a>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Column-Chart</a>
-        <br>
-        <br>
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Combo-Chart</a>
-
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Map container -->
-
-<div class="map-container">
-  
-    {{ map_html|safe }}
-    <style>
-    .map-container {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Add shadow */
-      border: 2px solid #ddd; /* Add border */
-      margin-top: 10px; /* top margin */
-      margin-left: auto; 
-      margin-right: auto; 
-      width: 100%; /* Use 100% width on small screen devices */
-      height: 400px; /* fixed hight */
-  }
-    @media (min-width: 800px) {
-        .map-container {
-            width: 1000px; /* Use 1000px width when screen width is larger than 768px */
-            height: 650px; /* fixed hight */
-        }
-  }
-</style> 
-</div>
-
+<!-- jQuery 和 Bootstrap JS -->
 
 <!-- Include jQuery and Bootstrap JS for the modal -->
+
+<!-- Include jQuery and Bootstrap JS once, remove any other duplicate script tags -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  
+// Your JavaScript for tab functionality
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = document.querySelectorAll('.nav-links a');
+  var tabContents = document.querySelectorAll('.tab-content');
+
+  navLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var activeTabAttribute = e.target.getAttribute('href');
+
+      // Deactivate all tabs and hide all tab contents
+      navLinks.forEach(function (link) {
+        link.classList.remove('active');
+      });
+      tabContents.forEach(function (content) {
+        content.classList.remove('active');
+      });
+
+      // Activate the clicked tab and show content
+      document.querySelector(activeTabAttribute).classList.add('active');
+      e.target.classList.add('active');
+    });
+  });
+});
+</script>
 
 </body>
 </html>
