@@ -26,13 +26,18 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 .navbar {
     width: 100%;
-    background-color: #333;
+    background-color: #546E7A; /* Darker shade for better contrast */
     overflow: auto;
+    font-size: 30px; /* Larger font size for readability */
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Modern font */
 }
+  
 
 .nav-links {
     list-style-type: none;
-    padding: 0;
+    padding: 10;
 }
 
 .nav-links li {
@@ -41,20 +46,33 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 
 .nav-links a {
-    text-decoration: none;
-    color: black;
+    padding: 10px 15px; /* Increased padding for better clickability */
+    border: 2px solid transparent; /* Cleaner look with transparent border */
+    background-color: #cacdcf; /* Softer background color */
+    border-radius: 5px; /* Rounded corners */
+    margin: 0 5px; /* Space between links */
+    display: inline-block;
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+    color: black; /* Better contrast with background */
     font-weight: bold;
+    font-size: larger;
+}
+.nav-links a:hover, .nav-links a:focus {
+    background-color: #90A4AE; /* Lighter on hover */
+    border-color: #B0BEC5; /* Subtle border change on hover */
 }
 
-.nav-links a.active,
-.nav-links a:hover {
-    color: #0275d8;
+.nav-links a.active {
+    background-color: #007bff; /* Bright color for active link */
+    color: white; /* Dark text for contrast */
+    border-color: #007bff; /* Darker border for prominence */
 }
+
 
 .tab-content {
     display: none;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 20px;
+    border: 2px solid #ddd;
     margin-top: 5px;
 }
 
@@ -69,7 +87,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 
 .control-panel {
-    width: 300px; /* Control the width of the control panel */
+    width: 500px; /* Control the width of the control panel */
     margin-left: 20px; /* Space between map and control panel */
     overflow-y: auto; /* Scroll if content is too long */
     padding: 10px; /* Padding around the content */
@@ -82,6 +100,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
 .control-panel label {
     display: block; /* Ensure the label is on a new line */
     margin-bottom: 0.5rem;
+    font-style: italic;
 }
 
 .control-panel input[type="text"],
@@ -100,13 +119,34 @@ body {font-family: Arial, Helvetica, sans-serif;}
     margin-top: 10px; /* Top margin */
     margin-right: 20px; /* Right margin, match the left margin of control panel */
     height: 100%; /* Height based on the width of the viewport */
-    max-height: 800px; /* You can set a max height if you want */
+    max-height: 900px; /* You can set a max height if you want */
     overflow: hidden; /* Hide overflow */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Optional shadow */
     border: 2px solid #ddd; /* Optional border */
 }
+/* Apply a consistent width to form groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
 
+/* Style the labels for better alignment */
+.form-group > label {
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
 
+/* Style the inputs for consistency */
+.form-control {
+    margin-bottom: 0.5rem; /* Add space below each input */
+}
+
+/* Align buttons to the right */
+.form-group > button {
+    align-self: flex-end; /* Align submit buttons to the right */
+    margin-top: 0.5rem; /* Add some space above the submit buttons */
+}
 
 
 </style>
@@ -124,17 +164,19 @@ body {font-family: Arial, Helvetica, sans-serif;}
       
   <!-- side panel -->
   <div class="side-panel">
+    <navbar>
       <nav>
         <ul class="nav-links">
-          <li><a href="#data-display" class="active">Data Display</a></li>
-          <li><a href="#visualization">Visualization</a></li>
-
+          <li><a href="#data-display" > Data Choices</a></li>
+          <li><a href="#Visualization"> Visualization</a></li>
+          <li><a href="#Download"> Download</a></li>
         </ul>
       </nav>
+    </navbar>
 
-      <div id="data-display" class="tab-content active">
-        <div class="data-display-section mb-3 p-3 border rounded">
-          <h4>Data Display</h4>
+    <div id="data-display" class="tab-content">
+        
+          <h5>Data Display</h5>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" id="temperatureCheck">
             <label class="form-check-label" for="temperatureCheck">Temperature</label>
@@ -153,78 +195,73 @@ body {font-family: Arial, Helvetica, sans-serif;}
       
         <div class="form-group">
           <br>
-          <h4>Time Period</h4>
+          <h5>Time Period</h5>
           <label for="fromDate">From:</label>
           <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
         </div>
         <div class="form-group">
           <label for="toDate">To:</label>
           <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
-          <br>
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
+        <br>
       
         <div class="form-group">
-            <!-- geo inpiut -->
-          <h4><label for="locationDropdown">Geographic Location</label></h4>
-          <div class="dropdown-menu" aria-labelledby="locationDropdown"></div>
-              <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
-                  {% csrf_token %}
-                  {{ form.as_p }} 
-
-                  <div class="form-group">
-                      <label for="latitude">Latitude:</label>
-                      <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-                      <select name="lat_direction" class="form-control mt-2">
-                          <option value="N">North</option>
-                          <option value="S">South</option>
-                      </select>
+            <!-- Geographic Location inpiut -->
+          <h5><label for="locationDropdown">Geographic Location</label></h5>
+            <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
+              {% csrf_token %}
+              {{ form.as_p }} 
+            <div class="form-group">
+            <label for="latitude">Latitude:</label>
+            <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+            <select name="lat_direction" class="form-control">
+                <option value="N">North</option>
+                <option value="S">South</option>
+            </select>
                   
-                  <div class="form-group">
-                      <label for="longitude">Longitude:</label>
-                      <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-                      <select name="long_direction" class="form-control mt-2">
-                          <option value="E">East</option>
-                          <option value="W">West</option>
-                      </select>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+            <div class="form-group">
+            <label for="longitude">Longitude:</label>
+            <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+            <select name="long_direction" class="form-control">
+                <option value="E">East</option>
+                <option value="W">West</option>
+            </select>
             </div>
-        </div>
-      </div>
-
-  <!-- Data Visualization Section -->
-    <br>
-  <div id="visualization" class="tab-content"> 
-      <!-- Visualization content here -->
-
-    <div class="data-visualization-section mb-3 p-3 border rounded">
-      <h4>Data Visualization</h4>
-      <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
-          <label class="form-check-label" for="lineChartCheck">Line Chart</label>
-      </div>
-      <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
-          <label class="form-check-label" for="columnChartCheck">Column Chart</label>
-      </div>
-      <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
-          <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+          </div>
       </div>
     </div>
-  </div>
+
+<!-- Data Visualization Section -->
+    <div id="Visualization" class="tab-content">
+        <!-- Visualization content here -->
+          <h5>Data Visualization</h5>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
+                <label class="form-check-label" for="lineChartCheck">Line Chart</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
+                <label class="form-check-label" for="columnChartCheck">Column Chart</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
+                <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
+            </div>
+    </div>
 
 
-  <div class="Datadowload-section mb-3 p-3 border rounded">
-    <h4>Data/Chart Download</h4>
-    <button type="submit" class="btn btn-primary">Download</button>
-  </div>
+
+    <div id="Download" class="tab-content">
+      <div class="Datadowload-section mb-3 p-3 border rounded">
+        <h4>Data/Chart Download</h4>
+        <button type="submit" class="btn btn-primary">Download</button>
+      </div>
 </div>
-<!-- jQuery 和 Bootstrap JS -->
+</div>
 
-<!-- Include jQuery and Bootstrap JS for the modal -->
 
 <!-- Include jQuery and Bootstrap JS once, remove any other duplicate script tags -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -233,6 +270,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
 <script>
   
 // Your JavaScript for tab functionality
+// JavaScript for tab functionality
 document.addEventListener('DOMContentLoaded', function () {
   var navLinks = document.querySelectorAll('.nav-links a');
   var tabContents = document.querySelectorAll('.tab-content');
@@ -251,11 +289,15 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       // Activate the clicked tab and show content
-      document.querySelector(activeTabAttribute).classList.add('active');
+      var activeTabContent = document.querySelector(activeTabAttribute);
+      if (activeTabContent) {
+        activeTabContent.classList.add('active');
+      }
       e.target.classList.add('active');
     });
   });
 });
+
 </script>
 
 </body>
