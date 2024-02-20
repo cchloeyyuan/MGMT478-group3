@@ -5,11 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-  <!-- jQuery and Bootstrap  -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
+
   <!-- CSS styles here -->
 </head>
 <body>
@@ -24,14 +21,24 @@
 
 body {font-family: Arial, Helvetica, sans-serif;}
 
+
+
+.page-container {
+    display: flex;
+    padding: 20px;
+    flex-direction: row;
+    align-items: stretch;
+    position: relative;
+}
+
 .navbar {
-    width: 100%;
-    background-color: #546E7A; /* Darker shade for better contrast */
-    overflow: auto;
-    font-size: 30px; /* Larger font size for readability */
-    font-weight: bold;
+    flex-direction: row;
+    flex: 0 0 40%;
+    position: fixed;
+    width: auto;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Modern font */
+    position: sticky; /* Sticky position to keep it on top within its container */
 }
   
 
@@ -63,9 +70,9 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 
 .nav-links a.active {
-    background-color: #007bff; /* Bright color for active link */
+    background-color: #3498db; /* Bright color for active link */
     color: white; /* Dark text for contrast */
-    border-color: #007bff; /* Darker border for prominence */
+    border-color: #3498db; /* Darker border for prominence */
 }
 
 
@@ -80,20 +87,15 @@ body {font-family: Arial, Helvetica, sans-serif;}
     display: block;
 }
 
-.page-container {
-    display: flex;
-    padding: 20px;
-    flex-direction: row;
-    align-items: stretch;
-}
-
 .control-panel {
+    flex-direction: column ;
     flex-grow: 1;
-    width: 500px; /* Control the width of the control panel */
-    height: auto;
+    width: auto; /* Control the width of the control panel */
+    height: 100%;
+    max-height: 700px;
     margin-left: 20px; /* Space between map and control panel */
     overflow-y: auto; /* Scroll if content is too long */
-    padding: 10px; /* Padding around the content */
+    padding: 5px; /* Padding around the content */
 }
 
 .control-panel .form-group {
@@ -120,9 +122,10 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 
 .map-container {
+    flex: 0 0 60%;
     flex-grow: 1; /* Allow the map to grow and fill the space */
     padding: 0; /* Remove padding */
-    margin-top: 70px; /* Top margin */
+    margin-top: 95px; /* Top margin */
     margin-right: 20px; /* Right margin, match the left margin of control panel */
     height: 100%; /* Height based on the width of the viewport */
     max-height: 900px; /* You can set a max height if you want */
@@ -131,6 +134,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
     border: 2px solid #ddd; /* Optional border */
 }
 /* Apply a consistent width to form groups */
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -162,14 +166,38 @@ body {font-family: Arial, Helvetica, sans-serif;}
 </header> 
 
 <div class="page-container">
-    <div class="map-container">
-      
-      {{ map_html|safe }}
+
+  <div class="map-container">
+    {{ map_html|safe }}
+  </div>
   
-    </div>
+<!---map choices
+  <div class="map-container">
+    <navbar>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#weather" > Weather </a></li>
+          <li><a href="#seatraffic"> Sea Traffic</a></li>
+          <li><a href="#airtraffic"> Air Traffic</a></li>
+        </ul>
+      </nav>
+    </navbar>
+
+      <div id="weather" class="tab-content"></div>
+      <div id="seatraffic" class="tab-content"></div>
+      <div id="airtraffic" class="tab-content"></div>
+        
+          {{ map_html|safe }}
+
+  </div>
+  -->
+      
       
   <!-- side panel -->
-  <div class="side-panel">
+
+  
+<div class="control-panel">  
+  <div class = "navbar">
     <navbar>
       <nav>
         <ul class="nav-links">
@@ -179,6 +207,10 @@ body {font-family: Arial, Helvetica, sans-serif;}
         </ul>
       </nav>
     </navbar>
+  </div>
+  
+      
+
 
     <div id="data-display" class="tab-content">
         
@@ -210,11 +242,9 @@ body {font-family: Arial, Helvetica, sans-serif;}
           <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
-        <br>
-      
         <div class="form-group">
             <!-- Geographic Location inpiut -->
-          <h5><label for="locationDropdown">Geographic Location</label></h5>
+            <h5>Geographic Location</h5>
             <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
               {% csrf_token %}
               {{ form.as_p }} 
