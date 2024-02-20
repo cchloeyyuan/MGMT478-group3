@@ -15,7 +15,7 @@
 <body>
 <style>
   header {
-    background-color: #a7a9a8;
+    background-color:#3498db;
     padding: 30px;
     text-align: center;
     font-size: 35px;
@@ -84,20 +84,25 @@ body {font-family: Arial, Helvetica, sans-serif;}
     display: flex;
     padding: 20px;
     flex-direction: row;
+    align-items: stretch;
 }
 
 .control-panel {
+    flex-grow: 1;
     width: 500px; /* Control the width of the control panel */
+    height: auto;
     margin-left: 20px; /* Space between map and control panel */
     overflow-y: auto; /* Scroll if content is too long */
     padding: 10px; /* Padding around the content */
 }
 
 .control-panel .form-group {
+    flex-grow: 1;
     margin-bottom: 10px;
 }
 
 .control-panel label {
+    flex-grow: 1;
     display: block; /* Ensure the label is on a new line */
     margin-bottom: 0.5rem;
     font-style: italic;
@@ -111,12 +116,13 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 .control-panel .checkbox-group {
     margin-bottom: 0.5rem;
+    flex-grow: 1;
 }
 
 .map-container {
     flex-grow: 1; /* Allow the map to grow and fill the space */
     padding: 0; /* Remove padding */
-    margin-top: 10px; /* Top margin */
+    margin-top: 70px; /* Top margin */
     margin-right: 20px; /* Right margin, match the left margin of control panel */
     height: 100%; /* Height based on the width of the viewport */
     max-height: 900px; /* You can set a max height if you want */
