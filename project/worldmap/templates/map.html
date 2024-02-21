@@ -1,340 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Weather Map</title>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+  <title>Weather Map</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-  <!-- CSS styles here -->
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  {% load static %}
+<!-- Template Main CSS File -->
+<link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  
+
 </head>
+
 <body>
-<style>
-  header {
-    background-color:#3498db;
-    padding: 30px;
-    text-align: center;
-    font-size: 35px;
-    color: white;
-}
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top header-transparent">
+    <div class="container d-flex align-items-center justify-content-between position-relative">
 
-body {font-family: Arial, Helvetica, sans-serif;}
+      <div class="logo">
+        <h1 class="text-light"><a href="index.html"><span>Weather Map</span></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>
 
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li><a class="nav-link scrollto" href="#about">Map</a></li>
+          <li><a class="nav-link scrollto" href="#team">Teams</a></li>
 
-
-.page-container {
-    display: flex;
-    padding: 20px;
-    flex-direction: row;
-    align-items: stretch;
-    position: relative;
-}
-
-.navbar {
-    flex-direction: row;
-    flex: 0 0 40%;
-    position: fixed;
-    width: auto;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Modern font */
-    position: sticky; /* Sticky position to keep it on top within its container */
-}
-  
-
-.nav-links {
-    list-style-type: none;
-    padding: 10;
-}
-
-.nav-links li {
-    display: inline;
-    margin-right: 10px;
-}
-
-.nav-links a {
-    padding: 10px 15px; /* Increased padding for better clickability */
-    border: 2px solid transparent; /* Cleaner look with transparent border */
-    background-color: #cacdcf; /* Softer background color */
-    border-radius: 5px; /* Rounded corners */
-    margin: 0 5px; /* Space between links */
-    display: inline-block;
-    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
-    color: black; /* Better contrast with background */
-    font-weight: bold;
-    font-size: larger;
-}
-.nav-links a:hover, .nav-links a:focus {
-    background-color: #90A4AE; /* Lighter on hover */
-    border-color: #B0BEC5; /* Subtle border change on hover */
-}
-
-.nav-links a.active {
-    background-color: #3498db; /* Bright color for active link */
-    color: white; /* Dark text for contrast */
-    border-color: #3498db; /* Darker border for prominence */
-}
-
-
-.tab-content {
-    display: none;
-    padding: 20px;
-    border: 2px solid #ddd;
-    margin-top: 5px;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-.control-panel {
-    flex-direction: column ;
-    flex-grow: 1;
-    width: auto; /* Control the width of the control panel */
-    height: 100%;
-    max-height: 700px;
-    margin-left: 20px; /* Space between map and control panel */
-    overflow-y: auto; /* Scroll if content is too long */
-    padding: 5px; /* Padding around the content */
-}
-
-.control-panel .form-group {
-    flex-grow: 1;
-    margin-bottom: 10px;
-}
-
-.control-panel label {
-    flex-grow: 1;
-    display: block; /* Ensure the label is on a new line */
-    margin-bottom: 0.5rem;
-    font-style: italic;
-}
-
-.control-panel input[type="text"],
-.control-panel select,
-.control-panel .btn {
-    width: 100%; /* Make sure each form element fills its container */
-}
-
-.control-panel .checkbox-group {
-    margin-bottom: 0.5rem;
-    flex-grow: 1;
-}
-
-.map-container {
-    flex: 0 0 60%;
-    flex-grow: 1; /* Allow the map to grow and fill the space */
-    padding: 0; /* Remove padding */
-    margin-top: 95px; /* Top margin */
-    margin-right: 20px; /* Right margin, match the left margin of control panel */
-    height: 100%; /* Height based on the width of the viewport */
-    max-height: 900px; /* You can set a max height if you want */
-    overflow: hidden; /* Hide overflow */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Optional shadow */
-    border: 2px solid #ddd; /* Optional border */
-}
-/* Apply a consistent width to form groups */
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
-}
-
-/* Style the labels for better alignment */
-.form-group > label {
-    margin-bottom: 0.5rem;
-    font-weight: 300;
-}
-
-/* Style the inputs for consistency */
-.form-control {
-    margin-bottom: 0.5rem; /* Add space below each input */
-}
-
-/* Align buttons to the right */
-.form-group > button {
-    align-self: flex-end; /* Align submit buttons to the right */
-    margin-top: 0.5rem; /* Add some space above the submit buttons */
-}
-
-
-</style>
-
-<header class="header">
-  <h2>Weather Map</h2>
-</header> 
-
-<div class="page-container">
-
-  <div class="map-container">
-    {{ map_html|safe }}
-  </div>
-  
-<!---map choices
-  <div class="map-container">
-    <navbar>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="#weather" > Weather </a></li>
-          <li><a href="#seatraffic"> Sea Traffic</a></li>
-          <li><a href="#airtraffic"> Air Traffic</a></li>
+          <li class="dropdown"><a href="#"><span>Traffic</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a href="#">Drop Down 1</a></li>
+              <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
+                <ul>
+                  <li><a href="#">Deep Drop Down 1</a></li>
+                  <li><a href="#">Deep Drop Down 2</a></li>
+                  <li><a href="#">Deep Drop Down 3</a></li>
+                  <li><a href="#">Deep Drop Down 4</a></li>
+                  <li><a href="#">Deep Drop Down 5</a></li>
+                </ul>
+              </li>
+              <li><a href="#">Drop Down 2</a></li>
+              <li><a href="#">Drop Down 3</a></li>
+              <li><a href="#">Drop Down 4</a></li>
+            </ul>
+          </li>
+          
+            
         </ul>
-      </nav>
-    </navbar>
+          <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
 
-      <div id="weather" class="tab-content"></div>
-      <div id="seatraffic" class="tab-content"></div>
-      <div id="airtraffic" class="tab-content"></div>
-        
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+
+  <section id="hero">
+      <div class="hero-container" data-aos="fade-up">
+        <h1>Welcome to MGMT 478 Project</h1>
+        <h2>We are Group3 working for this interactive weather website</h2>
+        <a href="#about" class="btn-get-started scrollto"><i class="bx bx-chevrons-down"></i></a>
+      </div>
+  </section><!-- End Hero -->
+  
+  <main id="main">
+
+    <!-- ======= About/map  Section ======= -->
+    
+     <br>
+     <br>
+
+      <div class="section-title" data-aos="fade-in" data-aos-delay="100">
+        <h2>Map Draft</h2>
+        <p>Map Container and Date Filters</p>
+      </div>
+      <section id="about" class="about">
+        <div class="map-container">
           {{ map_html|safe }}
-
-  </div>
-  -->
-      
-      
-  <!-- side panel -->
-
-  
-<div class="control-panel">  
-  <div class = "navbar">
-    <navbar>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="#data-display" > Data Choices</a></li>
-          <li><a href="#Visualization"> Visualization</a></li>
-          <li><a href="#Download"> Download</a></li>
-        </ul>
-      </nav>
-    </navbar>
-  </div>
-  
-      
-
-
-    <div id="data-display" class="tab-content">
-        
-          <h5>Data Display</h5>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="temperatureCheck">
-            <label class="form-check-label" for="temperatureCheck">Temperature</label>
         </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="cloudCheck">
-            <label class="form-check-label" for="cloudCheck">Cloud Coverage</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="precipitationCheck">
-            <label class="form-check-label" for="precipitationCheck">Precipitation</label>
-        </div>
-      
 
-      <!-- Date Range Inputs -->
-      
-        <div class="form-group">
-          <br>
-          <h5>Time Period</h5>
-          <label for="fromDate">From:</label>
-          <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
-        </div>
-        <div class="form-group">
-          <label for="toDate">To:</label>
-          <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-        <div class="form-group">
-            <!-- Geographic Location inpiut -->
-            <h5>Geographic Location</h5>
-            <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
-              {% csrf_token %}
-              {{ form.as_p }} 
-            <div class="form-group">
-            <label for="latitude">Latitude:</label>
-            <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-            <select name="lat_direction" class="form-control">
-                <option value="N">North</option>
-                <option value="S">South</option>
-            </select>
+        <!-- side panel -->
+        <div class="control-panel">  
+              <div class = "about navbar">
+                      <ul class="about nav-links">
+                        <li><a href="#data-display" > Data Choices</a></li>
+                        <li><a href="#Visualization"> Visualization</a></li>
+                        <li><a href="#Download"> Download</a></li>
+                      </ul>
+              </div>
+
+              <!-- Data display Section -->   
+              <div id="data-display" class="about tab-content">
                   
-            <div class="form-group">
-            <label for="longitude">Longitude:</label>
-            <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-            <select name="long_direction" class="form-control">
-                <option value="E">East</option>
-                <option value="W">West</option>
-            </select>
+                    <h5>Data Display</h5>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="temperatureCheck">
+                      <label class="form-check-label" for="temperatureCheck">Temperature</label>
+                  </div>
+                  <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="cloudCheck">
+                      <label class="form-check-label" for="cloudCheck">Cloud Coverage</label>
+                  </div>
+                  <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="precipitationCheck">
+                      <label class="form-check-label" for="precipitationCheck">Precipitation</label>
+                  </div>
+                
+
+                <!-- Date Range Inputs -->
+                
+                  <div class="form-group">
+                    <br>
+                    <h5>Time Period</h5>
+                    <label for="fromDate">From:</label>
+                    <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
+                  </div>
+                  <div class="form-group">
+                    <label for="toDate">To:</label>
+                    <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </div>
+                  <div class="form-group">
+                      <!-- Geographic Location inpiut -->
+                      <h5>Geographic Location</h5>
+                      <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
+                        {% csrf_token %}
+                        {{ form.as_p }} 
+                      <div class="form-group">
+                      <label for="latitude">Latitude:</label>
+                      <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+                      <select name="lat_direction" class="form-control">
+                          <option value="N">North</option>
+                          <option value="S">South</option>
+                      </select>
+                            
+                      <div class="form-group">
+                      <label for="longitude">Longitude:</label>
+                      <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+                      <select name="long_direction" class="form-control">
+                          <option value="E">East</option>
+                          <option value="W">West</option>
+                      </select>
+                      </div>
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                      </form>
+                    </div>
+                </div>
+              </div>
+            
+
+              <!-- Data Visualization Section -->
+              <div id="Visualization" class="tab-content">
+                  <!-- Visualization content here -->
+                    <h5>Data Visualization</h5>
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
+                          <label class="form-check-label" for="lineChartCheck">Line Chart</label>
+                      </div>
+                      <div class="about form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
+                          <label class="form-check-label" for="columnChartCheck">Column Chart</label>
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
+                          <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
+                      </div>
+              </div>
+
+              <!--dowonload Section -->   
+              <div id="Download" class="tab-content">
+                <div class="Datadowload-section mb-3 p-3 border rounded">
+                  <h5>Data/Chart Download</h5>
+                  <button type="submit" class="btn btn-primary">Download</button>
+                </div>
+              </div>
+        </div>
+      
+    </section>
+
+
+    <!-- ======= Team Section ======= -->
+    {% load static %}
+    <section id="team" class="team">
+      <div class="container">
+
+        <div class="section-title" data-aos="fade-in" data-aos-delay="100">
+          <h2>Team</h2>
+          <p>Member info</p>
+        </div>
+
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6">
+            <div class="member" data-aos="fade-up">
+              <div class="pic"><img src="worldmap/static/assets/img/team/team-1.jpg" class="img-fluid" alt=""></div>
+              
+              <div class="member-info">
+                <h4>Rhett Offenbacker </h4>
+                <span>Coordinator</span>
+                <div class="social">
+                  <a href=""><i class="bi bi-twitter"></i></a>
+                  <a href=""><i class="bi bi-facebook"></i></a>
+                  <a href=""><i class="bi bi-instagram"></i></a>
+                  <a href=""><i class="bi bi-linkedin"></i></a>
+                </div>
+              </div>
             </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </form>
           </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="member" data-aos="fade-up" data-aos-delay="150">
+              <div class="pic"><img src="worldmap/static/assets/img/team/team-2.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Gabriel Chang </h4>
+                <span>Product Manager</span>
+                <div class="social">
+                  <a href=""><i class="bi bi-twitter"></i></a>
+                  <a href=""><i class="bi bi-facebook"></i></a>
+                  <a href=""><i class="bi bi-instagram"></i></a>
+                  <a href=""><i class="bi bi-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="member" data-aos="fade-up" data-aos-delay="300">
+              <div class="pic"><img src="worldmap/static/assets/img/team/team-3.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Caleb Hammoudeh </h4>
+                <span>CTO</span>
+                <div class="social">
+                  <a href=""><i class="bi bi-twitter"></i></a>
+                  <a href=""><i class="bi bi-facebook"></i></a>
+                  <a href=""><i class="bi bi-instagram"></i></a>
+                  <a href=""><i class="bi bi-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="member" data-aos="fade-up" data-aos-delay="300">
+              <div class="pic"><img src="worldmap/static/assets/img/team/team-3.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Wei Yuan </h4>
+                <span>CTO</span>
+                <div class="social">
+                  <a href=""><i class="bi bi-twitter"></i></a>
+                  <a href=""><i class="bi bi-facebook"></i></a>
+                  <a href=""><i class="bi bi-instagram"></i></a>
+                  <a href=""><i class="bi bi-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Team Section -->
+
+    <!-- ======= Contact Section ======= -->
+    <section id="contact" class="contact section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Contact</h2>
+          <p>Feel free to reach out</p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="info-box mb-4">
+              <i class="bx bx-map"></i>
+              <h3>Our Address</h3>
+              <p>610 Purdue Mall, West Lafayette, IN 47907</p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="info-box  mb-4">
+              <i class="bx bx-envelope"></i>
+              <h3>Email Us</h3>
+              <p>xxxx@purdue.edu</p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="info-box  mb-4">
+              <i class="bx bx-phone-call"></i>
+              <h3>Call Us</h3>
+              <p>+1 5589 55488 55</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-lg-6 ">
+            <iframe class="mb-4 mb-lg-0" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621" frameborder="0" style="border:0; width: 100%; height: 384px;" allowfullscreen></iframe>
+          </div>
+
+          <div class="col-lg-6">
+            <form action="forms/contact.php" method="post" role="form" class="php-email-form">
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                </div>
+                <div class="col-md-6 form-group mt-3 mt-md-0">
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                </div>
+              </div>
+              <div class="form-group mt-3">
+                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+              </div>
+              <div class="form-group mt-3">
+                <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
+              </div>
+              <div class="my-3">
+                <div class="loading">Loading</div>
+                <div class="error-message"></div>
+                <div class="sent-message">Your message has been sent. Thank you!</div>
+              </div>
+              <div class="text-center"><button type="submit">Send Message</button></div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Contact Section -->
+
+  </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer">
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-info">
+              <h3>Weather Map</h3>
+              <p class="pb-3"><em>draft one</em></p>
+              <p>
+                 <br>
+                 IN 47907, USA<br><br>
+                <strong>Phone:</strong> +1 5589 55488 55<br>
+                <strong>Email:</strong> xxxx@purdue.edu<br>
+              </p>
+              <div class="social-links mt-3">
+                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Map</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Traffic</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Design</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Development</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Product Management</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Marketing</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Graphic Design</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-newsletter">
+            <h4>Our Newsletter</h4>
+            <p>111</p>
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit" value="Subscribe">
+            </form>
+
+          </div>
+
+        </div>
       </div>
     </div>
 
-<!-- Data Visualization Section -->
-    <div id="Visualization" class="tab-content">
-        <!-- Visualization content here -->
-          <h5>Data Visualization</h5>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
-                <label class="form-check-label" for="lineChartCheck">Line Chart</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
-                <label class="form-check-label" for="columnChartCheck">Column Chart</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
-                <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
-            </div>
-    </div>
-
-
-
-    <div id="Download" class="tab-content">
-      <div class="Datadowload-section mb-3 p-3 border rounded">
-        <h4>Data/Chart Download</h4>
-        <button type="submit" class="btn btn-primary">Download</button>
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Squadfree</span></strong>. All Rights Reserved
       </div>
-</div>
-</div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/squadfree-free-bootstrap-template-creative/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+    </footer><!-- End Footer -->
 
 
-<!-- Include jQuery and Bootstrap JS once, remove any other duplicate script tags -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-<script>
+    <!-- Include jQuery and Bootstrap JS once, remove any other duplicate script tags -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
   
-// Your JavaScript for tab functionality
-// JavaScript for tab functionality
-document.addEventListener('DOMContentLoaded', function () {
-  var navLinks = document.querySelectorAll('.nav-links a');
-  var tabContents = document.querySelectorAll('.tab-content');
+    <!-- Vendor JS Files -->
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+  
+  
+  <script>  
+  // Your JavaScript for tab functionality
+  // JavaScript for tab functionality
 
-  navLinks.forEach(function (link) {
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-      var activeTabAttribute = e.target.getAttribute('href');
 
-      // Deactivate all tabs and hide all tab contents
-      navLinks.forEach(function (link) {
-        link.classList.remove('active');
-      });
-      tabContents.forEach(function (content) {
-        content.classList.remove('active');
-      });
-
-      // Activate the clicked tab and show content
-      var activeTabContent = document.querySelector(activeTabAttribute);
-      if (activeTabContent) {
-        activeTabContent.classList.add('active');
-      }
-      e.target.classList.add('active');
-    });
-  });
+  window.addEventListener('scroll', function() {
+  var header = document.querySelector('header');
+  if (window.scrollY > 100) { // 当页面向下滚动超过100px时
+    header.classList.add('header-scrolled');
+  } else {
+    header.classList.remove('header-scrolled');
+  }
 });
 
-</script>
-
-</body>
-</html>
+  document.addEventListener('DOMContentLoaded', function () {
+    var navLinks = document.querySelectorAll('.nav-links a');
+    var tabContents = document.querySelectorAll('.tab-content');
+  
+    navLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var activeTabAttribute = e.target.getAttribute('href');
+  
+        // Deactivate all tabs and hide all tab contents
+        navLinks.forEach(function (link) {
+          link.classList.remove('active');
+        });
+        tabContents.forEach(function (content) {
+          content.classList.remove('active');
+        });
+  
+        // Activate the clicked tab and show content
+        var activeTabContent = document.querySelector(activeTabAttribute);
+        if (activeTabContent) {
+          activeTabContent.classList.add('active');
+        }
+        e.target.classList.add('active');
+    
+      });
+    });
+  });
+  
+  </script> 
+  
+  </body>
+  
+  </html>
+  
+  
+  
