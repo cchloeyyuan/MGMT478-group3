@@ -4,6 +4,8 @@ import folium
 from folium.plugins import HeatMap
 from .models import WeatherData
 import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
 from django.shortcuts import render
 from .forms import CoordinatesForm
 from django.http import HttpResponseRedirect
@@ -52,27 +54,20 @@ def map_view(request):
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
-    # get local filepath for project
-    current_loc = os.getcwd()
-    # add zip code folder to filepath
-#    final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
-#    i = 0
-    # loop through file for all files
-#    for file in os.listdir(final_directory):
-        #break after 3 json files are added
-#        if i == 4:
-#            break
-        # if json file
-#        if file.endswith(".json"):
-#            i+=1
-            # get filepath of json file
-#            json_file = os.path.join(final_directory, file)
-            #add json file to map
-#            folium.GeoJson(json_file).add_to(my_map)  
+
+    countey_data = gpd.read_file("counties.geojson")
+    #add all USA counties to the map
     folium.GeoJson("counties.geojson").add_to(my_map)
+    # convert weather data into geodataframe
+ #   geometry = [Point(xy) for xy in df]
+ #   weatherstations_gdf = gpd.GeoDataFrame(df['longitude'], df['latitude'], geometry = geometry, crs = countey_data.crs)
+    
+    # perform spatial join to find which countey each weather station falls within
+ #   joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
 
     # Convert the Folium map to HTML
-    map_html = my_map._repr_html_()
+ #   map_html = my_map._repr_html_()
+ #   print(joined_data)
 
     return render(request, 'map.html', {'map_html': map_html})
 
