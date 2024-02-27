@@ -55,20 +55,21 @@ def map_view(request):
     # get local filepath for project
     current_loc = os.getcwd()
     # add zip code folder to filepath
-    final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
-    i = 0
+#    final_directory = os.path.join(current_loc, r'State-zip-code-GeoJSON-master/')
+#    i = 0
     # loop through file for all files
-    for file in os.listdir(final_directory):
+#    for file in os.listdir(final_directory):
         #break after 3 json files are added
-        if i == 4:
-            break
+#        if i == 4:
+#            break
         # if json file
-        if file.endswith(".json"):
-            i+=1
+#        if file.endswith(".json"):
+#            i+=1
             # get filepath of json file
-            json_file = os.path.join(final_directory, file)
+#            json_file = os.path.join(final_directory, file)
             #add json file to map
-            folium.GeoJson(json_file).add_to(my_map)    
+#            folium.GeoJson(json_file).add_to(my_map)  
+    folium.GeoJson("counties.geojson").add_to(my_map)
 
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
