@@ -66,7 +66,7 @@ def map_view(request):
  #   joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
 
     # Convert the Folium map to HTML
- #   map_html = my_map._repr_html_()
+    map_html = my_map._repr_html_()
  #   print(joined_data)
 
     return render(request, 'map.html', {'map_html': map_html})
