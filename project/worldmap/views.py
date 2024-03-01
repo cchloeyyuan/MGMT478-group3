@@ -11,6 +11,8 @@ from .forms import CoordinatesForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import requests, os
+import numpy as np
+from scipy.interpolate import griddata
 
 def map_view(request):
     # Get weather station data from the model
@@ -43,12 +45,51 @@ def map_view(request):
         'TMAX': 'mean'
     }).reset_index()
 
-    # add the heatmap test to see if run
-    heat_map_data = station_averages[['LATITUDE', 'LONGITUDE']].values.tolist()
-    HeatMap(heat_map_data).add_to(my_map)
+
+    # Give boundaries for grid
+    min_lat, max_lat = 40.15, 40.8
+    min_lon, max_lon = -87.7, -86
+
+    # Create a grid of points covering Indiana region
+    grid_lat, grid_lon = np.mgrid[min_lat:max_lat:0.08, min_lon:max_lon:0.08]
+        
+    # Interpolate PRCP values for each point in the grid
+    interpolated_prcp = griddata((station_averages['LATITUDE'], station_averages['LONGITUDE']),
+                                station_averages['PRCP'],
+                                (grid_lat, grid_lon),
+                                method='cubic')
+
+    # Replace NaN values with a default value (e.g., 0)
+    interpolated_prcp = np.nan_to_num(interpolated_prcp)
+    heatmap_data = []
+
+    # Iterate over the grid coordinates and corresponding interpolated precipitation values
+    for lat, lon, prcp in zip(grid_lat.flatten(), grid_lon.flatten(), interpolated_prcp.flatten()):
+        heatmap_data.append((lat, lon, prcp))
+
+    #Add in original weather station data to the heatmap data
+    for index, row in station_averages.iterrows():
+        lat = row['LATITUDE']
+        lon = row['LONGITUDE']
+        prcp = row['PRCP']
+        heatmap_data.append((lat, lon, prcp))
+
+    # Determine the maximum interpolated precipitation values in order to normalize values
+    max_value = max(entry[2] for entry in heatmap_data)
+    normalized_heatmap_data = []
+    for entry in heatmap_data: #this loop goes through all the precipitation values and normalizes them from 0-1
+        lat, lon, prcp = entry  # Unpack the tuple
+        normalized_prcp = prcp / max_value
+        normalized_heatmap_data.append((lat, lon, normalized_prcp)) 
+
+    # Add heatmap overlay
+    HeatMap(normalized_heatmap_data, gradient={0.3:'blue',
+    0.5: 'green',
+    0.75: 'yellow',
+    0.9: 'orange',
+    1.0: 'red'}, index=2).add_to(my_map)
     
 
-    
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
