@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +11,12 @@
   <meta content="" name="keywords">
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  
+
   <!-- Favicons -->
   <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -96,6 +99,28 @@
         <h2>Map Draft</h2>
         <p>Map Container and Date Filters</p>
       </div>
+
+      <div id="data-display-container" class="data-display-container">
+        <div id="data-display" class="data-display ">
+        <h4>Map Choices:  </h4>
+        <br>
+        <br>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="dataDisplayOptions" id="temperatureCheck">
+          <h5 class="form-check-label" for="temperatureCheck">Temperature  </h5>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="dataDisplayOptions" id="cloudCheck">
+          <h5 class="form-check-label" for="cloudCheck">Cloud Coverage  </h5>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="dataDisplayOptions" id="precipitationCheck">
+          <h5 class="form-check-label" for="precipitationCheck">Precipitation  </h5>
+        </div>
+      </div>
+      </div>
+    
+
       <section id="about" class="about">
         <div class="map-container">
           {{ map_html|safe }}
@@ -105,34 +130,17 @@
         <div class="control-panel">  
               <div class = "about navbar">
                       <ul class="about nav-links">
-                        <li><a href="#data-display" > Data Choices</a></li>
+                        <li><a href="#date-geo" > Data Choices</a></li>
                         <li><a href="#Visualization"> Visualization</a></li>
                         <li><a href="#Download"> Download</a></li>
                       </ul>
               </div>
-
+  
               <!-- Data display Section -->   
-              <div id="data-display" class="about tab-content">
+              <div id="date-geo" class="about tab-content">
                   
-                    <h5>Data Display</h5>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="temperatureCheck">
-                      <label class="form-check-label" for="temperatureCheck">Temperature</label>
-                  </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="cloudCheck">
-                      <label class="form-check-label" for="cloudCheck">Cloud Coverage</label>
-                  </div>
-                  <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="precipitationCheck">
-                      <label class="form-check-label" for="precipitationCheck">Precipitation</label>
-                  </div>
-                
-
                 <!-- Date Range Inputs -->
-                
                   <div class="form-group">
-                    <br>
                     <h5>Time Period</h5>
                     <label for="fromDate">From:</label>
                     <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
@@ -140,32 +148,32 @@
                   <div class="form-group">
                     <label for="toDate">To:</label>
                     <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit Date</button>
                   </div>
                   <div class="form-group">
-                      <!-- Geographic Location inpiut -->
-                      <h5>Geographic Location</h5>
-                      <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
-                        {% csrf_token %}
-                        {{ form.as_p }} 
-                      <div class="form-group">
-                      <label for="latitude">Latitude:</label>
-                      <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-                      <select name="lat_direction" class="form-control">
-                          <option value="N">North</option>
-                          <option value="S">South</option>
-                      </select>
+                    <!-- Geographic Location inpiut -->
+                    <h5>Geographic Location</h5>
+                    <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
+                      {% csrf_token %}
+                      {{ form.as_p }} 
+                    <div class="form-group">
+                    <label for="latitude">Latitude:</label>
+                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+                    <select name="lat_direction" class="form-control">
+                        <option value="N">North</option>
+                        <option value="S">South</option>
+                    </select>
                             
-                      <div class="form-group">
-                      <label for="longitude">Longitude:</label>
-                      <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-                      <select name="long_direction" class="form-control">
-                          <option value="E">East</option>
-                          <option value="W">West</option>
-                      </select>
-                      </div>
-                          <button type="submit" class="btn btn-primary">Submit</button>
-                      </form>
+                    <div class="form-group">
+                    <label for="longitude">Longitude:</label>
+                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+                    <select name="long_direction" class="form-control">
+                        <option value="E">East</option>
+                        <option value="W">West</option>
+                    </select>
+                    </div>
+                        <button type="submit" class="btn btn-primary">Submit Location</button>
+                    </form>
                     </div>
                 </div>
               </div>
@@ -176,17 +184,28 @@
                   <!-- Visualization content here -->
                     <h5>Data Visualization</h5>
                       <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="lineChartCheck">
+                          <input class="form-check-input" type="radio" name="dataDisplayOptions" value="" id="lineChartCheck">
                           <label class="form-check-label" for="lineChartCheck">Line Chart</label>
                       </div>
                       <div class="about form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="columnChartCheck">
+                          <input class="form-check-input" type="radio" name="dataDisplayOptions" value="" id="columnChartCheck">
                           <label class="form-check-label" for="columnChartCheck">Column Chart</label>
                       </div>
                       <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="comboChartCheck">
+                          <input class="form-check-input" type="radio" name="dataDisplayOptions" value="" id="comboChartCheck">
                           <label class="form-check-label" for="comboChartCheck">Combo Chart</label>
                       </div>
+                      <br>
+                      <h5>Charts goes below: </h5>
+                      <br>
+                      <br>
+                      <br>
+                      <br>
+                      <br>
+                      <br>
+                      <br>
+                      <br>
+
               </div>
 
               <!--dowonload Section -->   
@@ -215,7 +234,7 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="member" data-aos="fade-up">
-              <div class="pic"><img src="worldmap/static/assets/img/team/team-1.jpg" class="img-fluid" alt=""></div>
+              <div class="pic"><img src="{% static 'assets/img/team/team-3.jpg' %}" class="img-fluid" alt=""></div>
               
               <div class="member-info">
                 <h4>Rhett Offenbacker </h4>
@@ -232,10 +251,10 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="member" data-aos="fade-up" data-aos-delay="150">
-              <div class="pic"><img src="worldmap/static/assets/img/team/team-2.jpg" class="img-fluid" alt=""></div>
+              <div class="pic"><img src="{% static 'assets/img/team/team-3.jpg' %}" class="img-fluid" alt=""></div>
               <div class="member-info">
-                <h4>Gabriel Chang </h4>
-                <span>Product Manager</span>
+                <h4>Caleb Hammoudeh</h4>
+                <span>Team members</span>
                 <div class="social">
                   <a href=""><i class="bi bi-twitter"></i></a>
                   <a href=""><i class="bi bi-facebook"></i></a>
@@ -248,10 +267,10 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="member" data-aos="fade-up" data-aos-delay="300">
-              <div class="pic"><img src="worldmap/static/assets/img/team/team-3.jpg" class="img-fluid" alt=""></div>
+              <div class="pic"><img src="{% static 'assets/img/team/team-3.jpg' %}" class="img-fluid" alt=""></div>
               <div class="member-info">
-                <h4>Caleb Hammoudeh </h4>
-                <span>CTO</span>
+                <h4> Gabriel Chang </h4>
+                <span>Team members</span>
                 <div class="social">
                   <a href=""><i class="bi bi-twitter"></i></a>
                   <a href=""><i class="bi bi-facebook"></i></a>
@@ -264,10 +283,10 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="member" data-aos="fade-up" data-aos-delay="300">
-              <div class="pic"><img src="worldmap/static/assets/img/team/team-3.jpg" class="img-fluid" alt=""></div>
+              <div class="pic"><img src="{% static 'assets/img/team/team-3.jpg' %}" class="img-fluid" alt=""></div>
               <div class="member-info">
                 <h4>Wei Yuan </h4>
-                <span>CTO</span>
+                <span>Team members</span>
                 <div class="social">
                   <a href=""><i class="bi bi-twitter"></i></a>
                   <a href=""><i class="bi bi-facebook"></i></a>
@@ -322,7 +341,8 @@
         <div class="row">
 
           <div class="col-lg-6 ">
-            <iframe class="mb-4 mb-lg-0" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621" frameborder="0" style="border:0; width: 100%; height: 384px;" allowfullscreen></iframe>
+           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.329357089072!2d-86.92376952336946!3d40.42370537143851!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8812fd37423e0507%3A0x8eccb2cf8b1a7c8e!2sPurdue%20University!5e0!3m2!1sen!2sus!4v1709580532678!5m2!1sen!2sus" frameborder="0" style="border:0; width: 100%; height: 384px;" allowfullscreen></iframe>
+
           </div>
 
           <div class="col-lg-6">

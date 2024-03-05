@@ -70,7 +70,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'weather.wsgi.application'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+   BASE_DIR / "worldmap" / "static",
 ]
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

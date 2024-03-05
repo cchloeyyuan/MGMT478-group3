@@ -63,6 +63,15 @@ def map_view(request):
     interpolated_prcp = np.nan_to_num(interpolated_prcp)
     heatmap_data = []
 
+    station_averages['PRCP'] = station_averages['PRCP'].fillna(0)
+
+    #Add in original weather station data to the heatmap data
+    for index, row in station_averages.iterrows():
+        lat = row['LATITUDE']
+        lon = row['LONGITUDE']
+        prcp = row['PRCP']  # This will now be NaN-free
+        heatmap_data.append((lat, lon, prcp))
+
     # Iterate over the grid coordinates and corresponding interpolated precipitation values
     for lat, lon, prcp in zip(grid_lat.flatten(), grid_lon.flatten(), interpolated_prcp.flatten()):
         heatmap_data.append((lat, lon, prcp))
@@ -81,6 +90,16 @@ def map_view(request):
         lat, lon, prcp = entry  # Unpack the tuple
         normalized_prcp = prcp / max_value
         normalized_heatmap_data.append((lat, lon, normalized_prcp)) 
+
+    # Determine the maximum interpolated precipitation values in order to normalize values
+    max_value = max(entry[2] for entry in heatmap_data if not np.isnan(entry[2]))  # Skip NaN values for max calculation
+
+    normalized_heatmap_data = []
+    for entry in heatmap_data: #this loop goes through all the precipitation values and normalizes them from 0-1
+        lat, lon, prcp = entry  # Unpack the tuple
+        if not np.isnan(prcp):  # Check if prcp is not NaN
+            normalized_prcp = prcp / max_value if max_value else 0  # Avoid division by zero if max_value is 0
+            normalized_heatmap_data.append((lat, lon, normalized_prcp))
 
     # Add heatmap overlay
     HeatMap(normalized_heatmap_data, gradient={0.3:'blue',
