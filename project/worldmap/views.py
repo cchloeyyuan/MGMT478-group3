@@ -5,7 +5,7 @@ from folium.plugins import HeatMap
 from .models import WeatherData
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 from django.shortcuts import render
 from .forms import CoordinatesForm
 from django.http import HttpResponseRedirect
@@ -13,6 +13,8 @@ from django.urls import reverse
 import requests, os
 import numpy as np
 from scipy.interpolate import griddata
+from branca.colormap import linear
+
 
 def map_view(request):
     # Get weather station data from the model
@@ -114,20 +116,48 @@ def map_view(request):
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
+#__________________________________________________________
 
-    countey_data = gpd.read_file("counties.geojson")
-    #add all USA counties to the map
-    folium.GeoJson("counties.geojson").add_to(my_map)
-    # convert weather data into geodataframe
- #   geometry = [Point(xy) for xy in df]
- #   weatherstations_gdf = gpd.GeoDataFrame(df['longitude'], df['latitude'], geometry = geometry, crs = countey_data.crs)
+    county_data = gpd.read_file("counties.geojson")
     
-    # perform spatial join to find which countey each weather station falls within
- #   joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
 
+    # Step 2: Determine the county for each station
+    def get_county(latitude, longitude):
+        point = Point(longitude, latitude)
+        i=0
+        for county in county_data['geometry']:
+            if county.contains(point):
+                id = county_data['GEOID'][i]
+                i+=1
+                return id
+            i+=1    
+        return None
+    station_averages['county'] = station_averages.apply(lambda row: get_county(row['LATITUDE'], row['LONGITUDE']), axis=1)
+
+    # Step 3: Calculate the average temperature for each county
+    county_temperatures = {}
+    for index, row in station_averages.iterrows():
+      if row['county'] is not None:
+        county = row['county']
+        if county not in county_temperatures:
+            county_temperatures[county] = {'total_temp': 0, 'count': 0}
+        county_temperatures[county]['total_temp'] += row['TAVG']
+        county_temperatures[county]['count'] += 1
+
+    for county, data in county_temperatures.items():
+        data['avg_temp'] = data['total_temp'] / data['count']
+    
+
+    
+    
+    
+    folium.GeoJson(county_data).add_to(my_map)
+    folium.GeoJson(county_data, zoom_on_click=True).add_to(my_map)
+    
+        
+    #__________________________________________________________
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
- #   print(joined_data)
 
     return render(request, 'map.html', {'map_html': map_html})
 
