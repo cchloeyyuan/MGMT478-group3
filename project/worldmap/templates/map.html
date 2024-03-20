@@ -150,6 +150,7 @@
                     <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
                     <button type="submit" class="btn btn-primary">Submit Date</button>
                   </div>
+
                   <div class="form-group">
                     <!-- Geographic Location inpiut -->
                     <h5>Geographic Location</h5>
@@ -159,21 +160,22 @@
                     <div class="form-group">
                     <label for="latitude">Latitude:</label>
                     <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-                    <select name="lat_direction" class="form-control">
-                        <option value="N">North</option>
-                        <option value="S">South</option>
-                    </select>
-                            
+                        <select name="lat_direction" class="form-control">
+                            <option value="N">North</option>
+                            <option value="S">South</option>
+                        </select>
+                  </div>
                     <div class="form-group">
                     <label for="longitude">Longitude:</label>
                     <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-                    <select name="long_direction" class="form-control">
-                        <option value="E">East</option>
-                        <option value="W">West</option>
-                    </select>
-                    </div>
-                        <button type="submit" class="btn btn-primary">Submit Location</button>
+                        <select name="long_direction" class="form-control">
+                            <option value="E">East</option>
+                            <option value="W">West</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Submit Date</button>
+                      </div>
                     </form>
+                    
                     </div>
                 </div>
               </div>
@@ -314,7 +316,7 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="info-box mb-4">
-              <i class="bx bx-map"></i>
+              
               <h3>Our Address</h3>
               <p>610 Purdue Mall, West Lafayette, IN 47907</p>
             </div>
@@ -322,7 +324,7 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="info-box  mb-4">
-              <i class="bx bx-envelope"></i>
+              
               <h3>Email Us</h3>
               <p>xxxx@purdue.edu</p>
             </div>
@@ -330,7 +332,7 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="info-box  mb-4">
-              <i class="bx bx-phone-call"></i>
+             
               <h3>Call Us</h3>
               <p>+1 5589 55488 55</p>
             </div>
@@ -351,16 +353,16 @@
               <form action="{% url 'contact' %}" method="post" role="form">
                 {% csrf_token %}
                 <div class="form-group">
-                    <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                    <input type="text" name="name" class="contactform-control" id="name" placeholder="Your Name" required>
                 </div>
                 <div class="form-group">
-                      <input type="email" class="form-control" name="recipient" id="recipient" placeholder="Recipient Email" required>
+                      <input type="email" class="contactform-control" name="recipient" id="recipient" placeholder="Recipient Email" required>
                   </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+                    <input type="text" class="contactform-control" name="subject" id="subject" placeholder="Subject" required>
                 </div>
                 <div class="form-group">
-                    <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
+                    <textarea class="contactform-control" name="message" rows="5" placeholder="Message" required></textarea>
                 </div>
               <div class="my-3">
                 <div class="loading">Loading</div>

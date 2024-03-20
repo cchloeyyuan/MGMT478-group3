@@ -126,19 +126,27 @@ def map_request(request):
 def contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        sender_email = request.POST.get('email')  # 发件人邮箱，用户输入的
+        sender_email = request.POST.get('email')  # user input
         subject = request.POST.get('subject')
         message = request.POST.get('message')
-        recipient_email = request.POST.get('recipient')  # 接收方的邮箱，也是用户输入的
-
+        recipient_email = request.POST.get('recipient')  # 
         try:
             send_mail(
-                subject,
-                f"Name: {name}\nEmail: {sender_email}\nMessage: {message}",
+                f"Reply {subject}",
+                f"Dear {name},\n\n"
+                f"Thanks for your message.\n\n"
+                f"This email means we have received your message and will get back to you as soon as possible.\n\n"
+                f"Appreciate your time! \n\n\n "
+                f"------------------------Below is the orginal message we received -------------------------\n\n"
+                f"Name: {name}\n\nEmail: {sender_email}\n\nMessage: {message}",
                 sender_email,  # 这将作为回复地址
                 [recipient_email],  # 发送到用户输入的这个地址
                 fail_silently=False,
+                
             )
+
+            
+
             return HttpResponse('Your message has been sent. Thank you!')
         except Exception as e:
             return HttpResponse(f'An error occurred: {e}')
