@@ -54,11 +54,12 @@ def map_view(request):
         'TMAX': 'mean'
     }).reset_index()
 
-    desired_state_code = "18"
-    desired_color_value = "PRCP"
+    desired_state_code = "18" #This is the state code value that specifies which counties to perform KNN on
+    desired_color_value = "PRCP" # This is the column name that is used for the values of the heatmap
     coordinates = []
     heatmap_data = []
 
+    # Loop through each county in the geojson file and if it matches the desired state code it performs heatmap function
     with open("counties.geojson", "r") as file:
         data = json.load(file)
         for feature in data["features"]:
@@ -70,16 +71,18 @@ def map_view(request):
 
     weighted_values = []
 
+    # This loops through heatmap data and stores the numerical values for each county
     for entry in heatmap_data:
         for inner_entry in entry:
             weighted_value= inner_entry[2] 
             weighted_values.append(weighted_value)
 
-    max_value = max(weighted_values)
+    max_value = max(weighted_values) # Both of these values are used in order to normalize the heatmap data
     avg_value = np.mean(weighted_values)
 
     normalized_heatmap_data = []
 
+    # This loop normalizes all of the heatmap data
     for entry in heatmap_data:
         for inner_entry in entry:
             lat = inner_entry[0]
