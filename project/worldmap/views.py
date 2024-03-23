@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import requests, os
 import numpy as np
-from scipy.interpolate import griddata
+from sklearn.neighbors import NearestNeighbors
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
@@ -26,7 +26,8 @@ def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
     url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
-    df = pd.read_csv(url)
+    file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
+    df = pd.read_csv(file_path)
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
@@ -56,6 +57,7 @@ def map_view(request):
     desired_state_code = "18"
     desired_color_value = "PRCP"
     coordinates = []
+    heatmap_data = []
 
     with open("counties.geojson", "r") as file:
         data = json.load(file)
@@ -63,9 +65,35 @@ def map_view(request):
             properties = feature["properties"]
             geometry = feature["geometry"]
             if properties.get("STATEFP") == desired_state_code:
-                coordinates.extend(geometry["coordinates"][0])  # Assuming all counties are Polygons
-                #heatmap(station_averages, np.array(coordinates), my_map, desired_color_value)
-    
+                coordinates.extend(geometry["coordinates"][0]) 
+                heatmap_data.append(heatmap(station_averages, np.array(coordinates), desired_color_value))
+
+    weighted_values = []
+
+    for entry in heatmap_data:
+        for inner_entry in entry:
+            weighted_value= inner_entry[2] 
+            weighted_values.append(weighted_value)
+
+    max_value = max(weighted_values)
+    avg_value = np.mean(weighted_values)
+
+    normalized_heatmap_data = []
+
+    for entry in heatmap_data:
+        for inner_entry in entry:
+            lat = inner_entry[0]
+            lon = inner_entry[1]
+            weighted_value= inner_entry[2] 
+
+        if not np.isnan(weighted_value):  # Check if the weighted value is not NaN
+            normalized_value = (weighted_value - avg_value) / max_value if max_value else 0  # Normalize the value
+            normalized_heatmap_data.append((lat, lon, normalized_value))
+
+    # Add heatmap overlay
+    HeatMap(normalized_heatmap_data, gradient={0.3: 'blue', 0.5: 'green', 0.75: 'yellow', 0.9: 'orange', 1.0: 'red'}, index=2).add_to(my_map)
+
+        
 
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
@@ -148,64 +176,29 @@ def contact(request):
     #map_html = my_map._repr_html_()
     #return render(request, 'map.html', {'form': form, 'map_html': map_html})
 
-def heatmap(station_averages, county_coords, my_map, color_value):
+def heatmap(station_averages, county_coords, color_value):
 
     grid_lat = county_coords[:, 1]
     grid_lon = county_coords[:, 0]
-        
-    # Interpolate PRCP values for each point in the grid
-    interpolated_prcp = griddata((station_averages['LATITUDE'], station_averages['LONGITUDE']),
-                                station_averages[color_value],
-                                (grid_lat, grid_lon),
-                                method='cubic')
 
-    # Replace NaN values with a default value (e.g., 0)
-    interpolated_prcp = np.nan_to_num(interpolated_prcp)
-    heatmap_data = []
+    # Fit KNN model on station coordinates
+    knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['LATITUDE', 'LONGITUDE']])
 
-    station_averages[color_value] = station_averages[color_value].fillna(0)
+    # Find indices of the 3 closest stations for each grid point
+    _, indices = knn_model.kneighbors(np.column_stack((grid_lat, grid_lon)))
+    weighted_values = []
 
-    #Add in original weather station data to the heatmap data
-    for index, row in station_averages.iterrows():
-        lat = row['LATITUDE']
-        lon = row['LONGITUDE']
-        value = row[color_value]  # This will now be NaN-free
-        heatmap_data.append((lat, lon, value))
+    for index_set in indices:
+        closest_station_value = station_averages.iloc[index_set[0]][color_value]
+        second_closest_station_value = station_averages.iloc[index_set[1]][color_value]
+        third_closest_station_value = station_averages.iloc[index_set[2]][color_value]
 
-    # Iterate over the grid coordinates and corresponding interpolated precipitation values
-    for lat, lon, value in zip(grid_lat.flatten(), grid_lon.flatten(), interpolated_prcp.flatten()):
-        heatmap_data.append((lat, lon, value))
+        # Assign weights to the values from closest, second closest, and third closest stations
+        weighted_value = (closest_station_value * 0.75 +
+                          second_closest_station_value * 0.2 +
+                          third_closest_station_value * 0.05)
 
-    #Add in original weather station data to the heatmap data
-    for index, row in station_averages.iterrows():
-        lat = row['LATITUDE']
-        lon = row['LONGITUDE']
-        value = row[color_value]
-        heatmap_data.append((lat, lon, value))
+        weighted_values.append(weighted_value)
 
-    # Determine the maximum interpolated precipitation values in order to normalize values
-    max_value = max(entry[2] for entry in heatmap_data)
-    normalized_heatmap_data = []
-    for entry in heatmap_data: #this loop goes through all the precipitation values and normalizes them from 0-1
-        lat, lon, value = entry  # Unpack the tuple
-        normalized_prcp = value / max_value
-        normalized_heatmap_data.append((lat, lon, normalized_prcp)) 
-
-    # Determine the maximum interpolated precipitation values in order to normalize values
-    max_value = max(entry[2] for entry in heatmap_data if not np.isnan(entry[2]))  # Skip NaN values for max calculation
-
-    normalized_heatmap_data = []
-    for entry in heatmap_data: #this loop goes through all the precipitation values and normalizes them from 0-1
-        lat, lon, value = entry  # Unpack the tuple
-        if not np.isnan(value):  # Check if prcp is not NaN
-            normalized_prcp = value / max_value if max_value else 0  # Avoid division by zero if max_value is 0
-            normalized_heatmap_data.append((lat, lon, normalized_prcp))
-
-    # Add heatmap overlay
-    HeatMap(normalized_heatmap_data, gradient={0.3:'blue',
-    0.5: 'green',
-    0.75: 'yellow',
-    0.9: 'orange',
-    1.0: 'red'}, index=2).add_to(my_map)
-
-    return
+    # Assign the same weighted value to all coordinates within each county
+    return [(grid_lat[i], grid_lon[i], weighted_values[i]) for i in range(len(grid_lat))]
