@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from worldmap.views import map_view
 from worldmap.views import map_request
+from worldmap.views import time_period_request
 from django.urls import path
 from worldmap import views
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path('map/', map_view, name='map_view'),
     path('admin/', admin.site.urls),
     path('map_request/', map_request, name='map_request'),
-     path('contact/', views.contact, name='contact'),
+    path('contact/', views.contact, name='contact'),
+    path('time-period/', views.time_period_request, name='time_period_request'),
 ]
 

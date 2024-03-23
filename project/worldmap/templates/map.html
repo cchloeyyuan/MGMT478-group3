@@ -135,7 +135,8 @@
                         <li><a href="#Download"> Download</a></li>
                       </ul>
               </div>
-  
+              
+
               <!-- Data display Section -->   
               <div id="date-geo" class="about tab-content">
                   
@@ -143,13 +144,21 @@
                   <div class="form-group">
                     <h5>Time Period</h5>
                     <label for="fromDate">From:</label>
-                    <input type="text" class="form-control" id="fromDate" placeholder="dd/mm/yyyy">
+                    <input type="text" class="form-control" id="fromDate" placeholder="mm/dd/yy">
+                    <form action="{% url 'time_period_request' %}" method="post">
+                      {% csrf_token %}
                   </div>
                   <div class="form-group">
                     <label for="toDate">To:</label>
-                    <input type="text" class="form-control" id="toDate" placeholder="dd/mm/yyyy">
+                    <input type="text" class="form-control" id="toDate" placeholder="mm/dd/yy">
+                    {{ form.start_date }}
+                     </div>
+                     <div class="form-group">
+                      <!-- Use form fields provided by Django -->
+                      {{ form.end_date }}
                     <button type="submit" class="btn btn-primary">Submit Date</button>
                   </div>
+                </form>
 
                   <div class="form-group">
                     <!-- Geographic Location inpiut -->
@@ -177,7 +186,7 @@
                     </form>
                     
                     </div>
-                </div>
+                  </div>
             
 
               <!-- Data Visualization Section -->
@@ -488,34 +497,73 @@
   }
 });
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var navLinks = document.querySelectorAll('.nav-links a');
-    var tabContents = document.querySelectorAll('.tab-content');
-  
-    navLinks.forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        var activeTabAttribute = e.target.getAttribute('href');
-  
-        // Deactivate all tabs and hide all tab contents
-        navLinks.forEach(function (link) {
-          link.classList.remove('active');
-        });
-        tabContents.forEach(function (content) {
-          content.classList.remove('active');
-        });
-  
-        // Activate the clicked tab and show content
-        var activeTabContent = document.querySelector(activeTabAttribute);
-        if (activeTabContent) {
-          activeTabContent.classList.add('active');
-        }
-        e.target.classList.add('active');
-    
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = document.querySelectorAll('.nav-links a');
+  var tabContents = document.querySelectorAll('.tab-content');
+
+  navLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var activeTabAttribute = e.target.getAttribute('href');
+
+      // Deactivate all tabs and hide all tab contents
+      navLinks.forEach(function (link) {
+        link.classList.remove('active');
       });
+      tabContents.forEach(function (content) {
+        content.classList.remove('active');
+      });
+
+      // Activate the clicked tab and show content
+      var activeTabContent = document.querySelector(activeTabAttribute);
+      if (activeTabContent) {
+        activeTabContent.classList.add('active');
+      }
+      e.target.classList.add('active');
     });
   });
-  
+});
+
+// Move this out of the DOMContentLoaded callback
+document.getElementById('your-form-id').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  var formData = new FormData(this);
+
+  fetch('http://127.0.0.1:8000/map/', {
+    method: 'POST',
+    body: formData,
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.success) {
+      showSentMessage(data.message); // Show the success message
+    } else {
+      // Handle error, show error message
+      showError(data.error);
+    }
+  })
+  .catch(error => {
+    // Network error or server is unreachable
+    showError('Network error or server is unreachable.');
+  });
+});
+
+function showSentMessage(message) {
+  var messageDiv = document.querySelector('contact .php-email-form .sent-message ');
+  messageDiv.textContent = message; // Set the pop-up text as the message returned from the server
+  messageDiv.style.display = 'block'; // Display the message
+
+  // Set a timer to hide the message after 3 seconds
+  setTimeout(function() {
+    messageDiv.style.display = 'none';
+  }, 3000);
+}
+
+function showError(error) {
+  // Show error handling logic, possibly modify the content of a '.error-message' div and display it
+  console.error(error);
+}
   </script> 
   
   </body>

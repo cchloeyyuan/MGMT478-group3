@@ -1203,13 +1203,20 @@ section {
 }
 
 .contact .php-email-form .sent-message {
-  display: none;
+  display: none; /* 默认隐藏 */
+  position: fixed; /* 固定位置 */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* 确保它位于页面其他内容之上 */
   color: #fff;
   background: #18d26e;
   text-align: center;
   padding: 15px;
   font-weight: 600;
+  border-radius: 5px; /* 可选，添加圆角效果 */
 }
+
 
 .contact .php-email-form .loading {
   display: none;

@@ -1,5 +1,8 @@
 from django.db import models
 
+
+
+
 # Notes: This page is used to define the structure of our database. Each class we create in this page
 # represents a table in our database. 
 
@@ -24,3 +27,9 @@ class WeatherData(models.Model):
             if pd.isna(value):
                 setattr(self, field.attname, None)
         super(WeatherData, self).save(*args, **kwargs)
+
+
+
+    # Handle GET request or invalid form by rendering the page with the empty or current form
+    # ...
+
