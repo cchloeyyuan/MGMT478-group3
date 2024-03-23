@@ -877,7 +877,7 @@ section {
 .form-control {
   margin-bottom: 0.5rem; /* Add space below each input */
   display: block;
-  width: 100%; /* Full width */
+  width: 60%; /* Full width */
   padding: .375rem .75rem; /* Padding inside the input */
   font-size: 1rem; /* Font size of the input text */
   line-height: 1.5; /* Line height of the input text */
@@ -1134,6 +1134,21 @@ section {
 /*--------------------------------------------------------------
 # Contact
 --------------------------------------------------------------*/
+.contactform-control {
+  margin-bottom: 0.5rem; /* Add space below each input */
+  display: block;
+  width: 100%; /* Full width */
+  padding: .375rem .75rem; /* Padding inside the input */
+  font-size: 1rem; /* Font size of the input text */
+  line-height: 1.5; /* Line height of the input text */
+  color: #495057; /* Text color for the input */
+  background-color: #fff; /* Background color for the input */
+  background-clip: padding-box;
+  border: 1px solid #ced4da; /* Border color for the input */
+  border-radius: .25rem; /* Rounded corners for the input */
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; /* Smooth transition for focus */
+
+}
 .contact {
   padding-bottom: 80px;
 }
