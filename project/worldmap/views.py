@@ -20,7 +20,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from shapely.geometry import Polygon
+
 
 def map_view(request):
     # Get weather station data from the model
@@ -213,3 +213,6 @@ def heatmap(station_averages, county_coords, color_value):
 
     # Assign the same weighted value to all coordinates within each county
     return [(grid_lat[i], grid_lon[i], weighted_values[i]) for i in range(len(grid_lat))]
+
+def time_period_request(request):
+    return
