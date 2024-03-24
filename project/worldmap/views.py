@@ -1,28 +1,32 @@
 # views.py
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.urls import reverse
-from django.core.mail import send_mail
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
 import folium
 from folium.plugins import HeatMap
 from .models import WeatherData
 import pandas as pd
-import requests
-import numpy as np
-import json
-from .forms import CoordinatesForm, TimePeriodForm
-from sklearn.neighbors import NearestNeighbors
 import geopandas as gpd
-
-
+from shapely.geometry import Point
+from django.shortcuts import render
+from .forms import CoordinatesForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+import requests, os
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from shapely.geometry import Polygon
 
 def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
     url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
-    #file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
+    file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
     df = pd.read_csv(url)
 
     # If data doesn't exist in the database, insert it
@@ -149,38 +153,6 @@ def map_request(request):
             #folium.Marker([latitude, longitude], popup="Your Location").add_to(my_map)
 
 
-#date request
-def time_period_request(request):
-    # Initialize with empty data or with some default data
-    data_for_period = None
-    
-    form = TimePeriodForm()
-
-    if request.method == 'POST':
-        form = TimePeriodForm(request.POST)
-        if form.is_valid():
-            # Extract the time period information from the form
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-
-            # Query your data model to find data within the time period
-            data_for_period = WeatherData.objects.filter(
-                date__gte=start_date, 
-                date__lte=end_date
-            )
-
-            # Here you might want to process the data as needed to display
-
-            # Return the data along with the rendered HTML template
-            return render(request, 'time_period.html', {
-                'form': form,
-                'data': data_for_period
-            })
-            
-    # If it's a GET request or the form is not valid, render the page with the empty or current form
-    return render(request, 'time_period.html', {'form': form, 'data': data_for_period})
-
-
 @csrf_exempt
 def contact(request):
     if request.method == 'POST':
@@ -204,12 +176,13 @@ def contact(request):
                 
             )
 
-        
-            return JsonResponse({'success': True, 'message': 'Your message has been sent. Thank you!'}, status=200)
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+            
 
-    return JsonResponse({'success': False, 'message': 'This endpoint only accepts POST requests.'}, status=400)
+            return HttpResponse('Your message has been sent. Thank you!')
+        except Exception as e:
+            return HttpResponse(f'An error occurred: {e}')
+
+    return HttpResponse('This endpoint only accepts POST requests.')
 
     #map_html = my_map._repr_html_()
     #return render(request, 'map.html', {'form': form, 'map_html': map_html})
