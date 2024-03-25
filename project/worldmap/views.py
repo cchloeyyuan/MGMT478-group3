@@ -22,6 +22,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 
+
+
 def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
@@ -122,7 +124,7 @@ def map_view(request):
     counties_with_precipitation = countey_data.merge(avg_precipitation_by_county, left_on='GEOID', right_on='GEOID', how='left')
     # Create Folium map
         # Add choropleth layer to the map
-    folium.Choropleth(
+    choropleth = folium.Choropleth(
         geo_data=counties_with_precipitation,
         name='choropleth',
         data=counties_with_precipitation,
