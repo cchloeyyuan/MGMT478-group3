@@ -21,14 +21,16 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import warnings
 from shapely.geometry import Polygon
+from .forms import TimePeriodForm
+
 
 
 def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
     url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
-    file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
-    df = pd.read_csv(file_path)
+    #file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
+    df = pd.read_csv(url)
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
@@ -99,8 +101,9 @@ def map_request(request):
     #my_map = folium.Map(location=[default_latitude, default_longitude], zoom_start=10)
     form = CoordinatesForm()
 
+    
     if request.method == 'POST':
-        form = CoordinatesForm(request.POST)
+        form = CoordinatesForm(request.POST )
         if form.is_valid():
             latitude = form.cleaned_data['latitude']
             longitude = form.cleaned_data['longitude']
@@ -119,14 +122,11 @@ def map_request(request):
             return render(request, 'map.html', {'map_html': map_html})
             
         else:
-            # 如果是GET请求，仅渲染带有空表单的页面
-            # If it's a GET request, only render the page with the empty form
-            form = CoordinatesForm()
-            return render(request, 'map.html', {'form': form})# Create a new map object with the submitted coordinates
-            #my_map = folium.Map(location=[latitude, longitude], zoom_start=14)
-            #folium.Marker([latitude, longitude], popup="Your Location").add_to(my_map)
-
-
+                # 如果表单无效，返回错误消息
+                return JsonResponse({'error': 'Invalid input, please enter valid numbers.'}, status=400)
+    return render(request, 'map.html', {'form': CoordinatesForm()})
+        
+           
 @csrf_exempt
 def contact(request):
     if request.method == 'POST':
@@ -194,4 +194,33 @@ def heatmap(station_averages, county_coords, color_value):
     return mean_weighted_value
 
 def time_period_request(request):
-    return
+    # If it's a GET request or the form is not valid, render the page with the form and any data
+    form = TimePeriodForm(request.POST)  # Initialize form with POST data or None
+    data_for_period = None
+    
+    
+    if request.method == 'POST':
+        # Initialize the form with POST data
+        form = TimePeriodForm(request.POST)
+        if form.is_valid():
+            # Extract the time period information from the form
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+
+            # Query your data model to find data within the time period
+            data_for_period = WeatherData.objects.filter(
+                DATE__gte=start_date, 
+                DATE__lte=end_date
+            )
+        # In case the form is not valid, 'form' context will carry the errors
+        # If it's valid, 'data_for_period' will carry the filtered data
+
+    # Render the same 'map.html' for both GET and POST requests
+    # This will ensure that the form persists with the user's input or with errors
+    return render(request, 'map.html', {
+        'form': form,
+        'data': data_for_period
+    })
+
+
+

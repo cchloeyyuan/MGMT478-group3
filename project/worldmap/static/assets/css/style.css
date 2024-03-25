@@ -890,6 +890,15 @@ section {
 
 }
 
+.error-message {
+  color: red;
+  background-color: #ffc0cb;
+  border: 1px solid red;
+  padding: 10px;
+  margin-top: 10px;
+  display: none; /* 默认不显示 */
+}
+
 /* Align buttons to the right */
 
 

@@ -141,53 +141,51 @@
               <div id="date-geo" class="about tab-content">
                   
                 <!-- Date Range Inputs -->
+                
+                <form method="post" action="{% url 'time_period_request' %}" class="px-4 py-3">
+                  {% csrf_token %}
                   <div class="form-group">
-                    <h5>Time Period</h5>
-                    <label for="fromDate">From:</label>
-                    <input type="text" class="form-control" id="fromDate" placeholder="mm/dd/yy">
-                    <form action="{% url 'time_period_request' %}" method="post">
-                      {% csrf_token %}
-                  </div>
-                  <div class="form-group">
-                    <label for="toDate">To:</label>
-                    <input type="text" class="form-control" id="toDate" placeholder="mm/dd/yy">
-                    {{ form.start_date }}
-                     </div>
-                     <div class="form-group">
-                      <!-- Use form fields provided by Django -->
+                      <h5>Time Period</h5>
+                      <label for="{{ form.start_date.id_for_label }}">From:</label>
+                      {{ form.start_date}}
+                      <label for="{{ form.end_date.id_for_label }}">To:</label>
                       {{ form.end_date }}
-                    <button type="submit" class="btn btn-primary">Submit Date</button>
                   </div>
+                  <button type="submit" class="btn-submit">Submit Date</button>
                 </form>
 
+                <!-- Render the map and other data as needed -->
+                {% if data %}
+                  <!-- Process and display 'data' -->
+                {% endif %}
+
+                
+               <!-- Geolocation Inputs -->
                   <div class="form-group">
-                    <!-- Geographic Location inpiut -->
-                    <h5>Geographic Location</h5>
                     <form method="post" action="{% url 'map_request' %}" class="px-4 py-3">
                       {% csrf_token %}
                       {{ form.as_p }} 
-                    <div class="form-group">
-                    <label for="latitude">Latitude:</label>
-                    <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
-                        <select name="lat_direction" class="form-control">
-                            <option value="N">North</option>
-                            <option value="S">South</option>
+                      <h5>Geographic Location</h5>
+                      <label for="latitude">Latitude:</label>
+                      <input type="text" class="form-control" id="latitude" name="latitude" value="{{ request.POST.latitude }}">
+                      <select name="lat_direction" class="form-control">
+                          <option value="N">North</option>
+                          <option value="S">South</option>
+                      </select>
+                 
+                      <label for="longitude">Longitude:</label>
+                      <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
+                      <select name="long_direction" class="form-control">
+                          <option value="E">East</option>
+                          <option value="W">West</option>
                         </select>
                   </div>
-                    <div class="form-group">
-                    <label for="longitude">Longitude:</label>
-                    <input type="text" class="form-control" id="longitude" name="longitude" value="{{ request.POST.longitude }}">
-                        <select name="long_direction" class="form-control">
-                            <option value="E">East</option>
-                            <option value="W">West</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Submit Date</button>
-                      </div>
-                    </form>
-                    
-                    </div>
-                  </div>
-            
+                  <button type="submit" class="btn-submit">Submit Geographic Location</button>
+              </form>
+              </div>
+                                      
+
+           
 
               <!-- Data Visualization Section -->
               <div id="Visualization" class="tab-content">
@@ -219,12 +217,14 @@
               </div>
 
               <!--dowonload Section -->   
+            
               <div id="Download" class="tab-content">
                 <div class="Datadowload-section mb-3 p-3 border rounded">
                   <h5>Data/Chart Download</h5>
-                  <button type="submit" class="btn btn-primary">Download</button>
+                  <a href="https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv" class="btn btn-primary" download="Indiana_Weather_Data.csv">Download</a>
                 </div>
               </div>
+
         </div>
       
     </section>
@@ -488,6 +488,32 @@
   // JavaScript for tab functionality
 
 
+// 当文档加载完毕后绑定事件
+$(document).ready(function() {
+    // 捕捉表单提交事件
+    $('#coordinatesForm').submit(function(event) {
+        event.preventDefault(); // 阻止表单默认提交
+
+        // 使用AJAX提交表单数据
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: $(this).serialize(), // 序列化表单数据
+            success: function(response) {
+                // 成功时处理逻辑，比如展示地图
+                $('#map-container').html(response.map_html);
+                $('#error-message').hide(); // 隐藏错误消息
+            },
+            error: function(xhr, errmsg, err) {
+                // 处理错误，显示错误消息
+                var errorJson = JSON.parse(xhr.responseText);
+                $('#error-message').text(errorJson.error).show(); // 显示错误消息
+            }
+        });
+    });
+});
+
+
   window.addEventListener('scroll', function() {
   var header = document.querySelector('header');
   if (window.scrollY > 100) { // 当页面向下滚动超过100px时
@@ -524,30 +550,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Move this out of the DOMContentLoaded callback
-document.getElementById('your-form-id').addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  var formData = new FormData(this);
-
-  fetch('http://127.0.0.1:8000/map/', {
-    method: 'POST',
-    body: formData,
-  })
-  .then(response => response.json())
-  .then(data => {
-    if(data.success) {
-      showSentMessage(data.message); // Show the success message
-    } else {
-      // Handle error, show error message
-      showError(data.error);
-    }
-  })
-  .catch(error => {
-    // Network error or server is unreachable
-    showError('Network error or server is unreachable.');
-  });
-});
 
 function showSentMessage(message) {
   var messageDiv = document.querySelector('contact .php-email-form .sent-message ');
@@ -558,12 +560,14 @@ function showSentMessage(message) {
   setTimeout(function() {
     messageDiv.style.display = 'none';
   }, 3000);
-}
+};
 
 function showError(error) {
   // Show error handling logic, possibly modify the content of a '.error-message' div and display it
   console.error(error);
-}
+};
+
+
   </script> 
   
   </body>

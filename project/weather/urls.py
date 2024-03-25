@@ -27,6 +27,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('map_request/', map_request, name='map_request'),
     path('contact/', views.contact, name='contact'),
-    path('time-period/', views.time_period_request, name='time_period_request'),
+    path('time_period_request/', views.time_period_request, name='time_period_request'),
 ]
 
