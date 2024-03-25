@@ -130,7 +130,7 @@ def map_view(request):
         data=counties_with_precipitation,
         columns=['GEOID', 'PRCP'],
         key_on='feature.properties.GEOID',
-        fill_color='RdYlBu',  # Change the color scale
+        fill_color='BuYlRd',  # Change the color scale
         fill_opacity=0.7,
         line_opacity=0.2,
         legend_name='Average Precipitation (mm)'
