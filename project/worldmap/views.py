@@ -106,17 +106,48 @@ def map_view(request):
 
     countey_data = gpd.read_file("counties.geojson")
     #add all USA counties to the map
-    #folium.GeoJson("counties.geojson").add_to(my_map)
-    # convert weather data into geodataframe
- #   geometry = [Point(xy) for xy in df]
- #   weatherstations_gdf = gpd.GeoDataFrame(df['longitude'], df['latitude'], geometry = geometry, crs = countey_data.crs)
+    folium.GeoJson("counties.geojson").add_to(my_map)
+    #convert weather data into geodataframe
+#    print(df)
+    #geometry = gpd.points_from_xy(df.LONGITUDE, df.LATITUDE)
+#    print(geometry)
+    #weatherstations_gdf = gpd.GeoDataFrame(df['LONGITUDE'], df['LONGITUDE'], geometry = geometry, crs = countey_data.crs)
     
     # perform spatial join to find which countey each weather station falls within
- #   joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
+    #joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
 
+    geometry = gpd.points_from_xy(df.LONGITUDE, df.LATITUDE)
+    weatherstations_gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=countey_data.crs)
+
+    # Perform spatial join to find which county each weather station falls within
+    joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how="inner", op="contains")
+  #  print(joined_data)
+
+    # Calculate average precipitation for each county
+    avg_precipitation_by_county = joined_data.groupby('GEOID')['PRCP'].mean().reset_index()
+
+    # Merge average precipitation data with county boundaries
+    counties_with_precipitation = countey_data.merge(avg_precipitation_by_county, left_on='GEOID', right_on='GEOID', how='left')
+    # Create Folium map
+        # Add choropleth layer to the map
+    folium.Choropleth(
+        geo_data=counties_with_precipitation,
+        name='choropleth',
+        data=counties_with_precipitation,
+        columns=['GEOID', 'PRCP'],
+        key_on='feature.properties.GEOID',
+        fill_color='RdYlBu',  # Change the color scale
+        fill_opacity=0.7,
+        line_opacity=0.2,
+        legend_name='Average Precipitation (mm)'
+)   .add_to(my_map)
+    # Add county boundaries
+    folium.GeoJson(counties_with_precipitation).add_to(my_map)
+
+    # Add layer control
+    folium.LayerControl().add_to(my_map)
     # Convert the Folium map to HTML
     map_html = my_map._repr_html_()
- #   print(joined_data)
 
     return render(request, 'map.html', {'map_html': map_html})
 
