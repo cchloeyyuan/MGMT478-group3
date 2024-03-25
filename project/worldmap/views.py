@@ -107,14 +107,6 @@ def map_view(request):
     countey_data = gpd.read_file("counties.geojson")
     #add all USA counties to the map
     folium.GeoJson("counties.geojson").add_to(my_map)
-    #convert weather data into geodataframe
-#    print(df)
-    #geometry = gpd.points_from_xy(df.LONGITUDE, df.LATITUDE)
-#    print(geometry)
-    #weatherstations_gdf = gpd.GeoDataFrame(df['LONGITUDE'], df['LONGITUDE'], geometry = geometry, crs = countey_data.crs)
-    
-    # perform spatial join to find which countey each weather station falls within
-    #joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how = "inner", op = "contains")
 
     geometry = gpd.points_from_xy(df.LONGITUDE, df.LATITUDE)
     weatherstations_gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=countey_data.crs)
