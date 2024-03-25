@@ -28,7 +28,7 @@ def map_view(request):
     weather_stations = WeatherData.objects.all()
     url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
     file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
-    df = pd.read_csv(url)
+    df = pd.read_csv(file_path)
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
@@ -81,13 +81,11 @@ def map_view(request):
         data=heatmap_df,
         columns=['GEOID', 'Measure'],
         key_on='feature.properties.GEOID',
-        fill_color='RdYlBu',  # Change the color scale if needed
+        fill_color='YlOrRd',  # Change the color scale if needed
         fill_opacity=0.7,
         line_opacity=0.2,
         legend_name='Average Precipitation (mm)'
     ).add_to(my_map)
-    # Add county boundaries
-    #folium.GeoJson(counties_with_precipitation).add_to(my_map)
 
     # Add layer control
     folium.LayerControl().add_to(my_map)
