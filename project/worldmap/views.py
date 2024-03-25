@@ -19,9 +19,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-
-
+import warnings
+from shapely.geometry import Polygon
 
 
 def map_view(request):
@@ -58,85 +57,37 @@ def map_view(request):
 
     desired_state_code = "18" #This is the state code value that specifies which counties to perform KNN on
     desired_color_value = "PRCP" # This is the column name that is used for the values of the heatmap
-    coordinates = []
-    heatmap_data = []
+    heatmap_df = gpd.read_file("counties.geojson")
+    heatmap_df['Measure'] = 0 #This creates a new column to store values for the heatmap
 
-    # Loop through each county in the geojson file and if it matches the desired state code it performs heatmap function
-    with open("counties.geojson", "r") as file:
-        data = json.load(file)
-        for feature in data["features"]:
-            properties = feature["properties"]
-            geometry = feature["geometry"]
-            if properties.get("STATEFP") == desired_state_code:
-                coordinates.extend(geometry["coordinates"][0]) 
-                heatmap_data.append(heatmap(station_averages, np.array(coordinates), desired_color_value))
-
-    weighted_values = []
-
-    # This loops through heatmap data and stores the numerical values for each county
-    for entry in heatmap_data:
-        for inner_entry in entry:
-            weighted_value= inner_entry[2] 
-            weighted_values.append(weighted_value)
-
-    max_value = max(weighted_values) # Both of these values are used in order to normalize the heatmap data
-    avg_value = np.mean(weighted_values)
-
-    normalized_heatmap_data = []
-
-    # This loop normalizes all of the heatmap data
-    for entry in heatmap_data:
-        for inner_entry in entry:
-            lat = inner_entry[0]
-            lon = inner_entry[1]
-            weighted_value= inner_entry[2] 
-
-        if not np.isnan(weighted_value):  # Check if the weighted value is not NaN
-            normalized_value = (weighted_value - avg_value) / max_value if max_value else 0  # Normalize the value
-            normalized_heatmap_data.append((lat, lon, normalized_value))
-
-    # Add heatmap overlay
-    HeatMap(normalized_heatmap_data, gradient={0.3: 'blue', 0.5: 'green', 0.75: 'yellow', 0.9: 'orange', 1.0: 'red'}, index=2).add_to(my_map)
-
-        
+    # Loop through each county and apply the heatmap knn function to give it a measure value
+    for index,row in heatmap_df.iterrows():
+        if row['STATEFP'] == desired_state_code:
+            measure = heatmap(station_averages, row['geometry'], desired_color_value)
+            heatmap_df.loc[index, 'Measure'] = measure
+        else:
+            heatmap_df.loc[index, 'Measure'] = 0
 
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
         popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
         folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
 
-
-    countey_data = gpd.read_file("counties.geojson")
-    #add all USA counties to the map
-    folium.GeoJson("counties.geojson").add_to(my_map)
-
-    geometry = gpd.points_from_xy(df.LONGITUDE, df.LATITUDE)
-    weatherstations_gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=countey_data.crs)
-
-    # Perform spatial join to find which county each weather station falls within
-    joined_data = gpd.sjoin(countey_data, weatherstations_gdf, how="inner", op="contains")
-  #  print(joined_data)
-
-    # Calculate average precipitation for each county
-    avg_precipitation_by_county = joined_data.groupby('GEOID')['PRCP'].mean().reset_index()
-
-    # Merge average precipitation data with county boundaries
-    counties_with_precipitation = countey_data.merge(avg_precipitation_by_county, left_on='GEOID', right_on='GEOID', how='left')
-    # Create Folium map
+    # # Create Folium map
         # Add choropleth layer to the map
-    choropleth = folium.Choropleth(
-        geo_data=counties_with_precipitation,
+    folium.Choropleth(
+        geo_data=heatmap_df,
         name='choropleth',
-        data=counties_with_precipitation,
-        columns=['GEOID', 'PRCP'],
+        data=heatmap_df,
+        columns=['GEOID', 'Measure'],
         key_on='feature.properties.GEOID',
-        fill_color='BuYlRd',  # Change the color scale
+        fill_color='RdYlBu',  # Change the color scale if needed
         fill_opacity=0.7,
         line_opacity=0.2,
         legend_name='Average Precipitation (mm)'
-)   .add_to(my_map)
+    ).add_to(my_map)
     # Add county boundaries
-    folium.GeoJson(counties_with_precipitation).add_to(my_map)
+    #folium.GeoJson(counties_with_precipitation).add_to(my_map)
 
     # Add layer control
     folium.LayerControl().add_to(my_map)
@@ -214,16 +165,19 @@ def contact(request):
 
 def heatmap(station_averages, county_coords, color_value):
 
-    grid_lat = county_coords[:, 1]
-    grid_lon = county_coords[:, 0]
+    weighted_values = []
+    coordinates = county_coords.exterior.coords
+
+    # Extract latitude and longitude coordinates
+    latitudes = [coord[1] for coord in coordinates]
+    longitudes = [coord[0] for coord in coordinates]
 
     # Fit KNN model on station coordinates
+    warnings.filterwarnings("ignore", category=UserWarning)
     knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['LATITUDE', 'LONGITUDE']])
 
     # Find indices of the 3 closest stations for each grid point
-    _, indices = knn_model.kneighbors(np.column_stack((grid_lat, grid_lon)))
-    weighted_values = []
-
+    _, indices = knn_model.kneighbors(np.column_stack((latitudes, longitudes)))
     for index_set in indices:
         closest_station_value = station_averages.iloc[index_set[0]][color_value]
         second_closest_station_value = station_averages.iloc[index_set[1]][color_value]
@@ -236,8 +190,10 @@ def heatmap(station_averages, county_coords, color_value):
 
         weighted_values.append(weighted_value)
 
-    # Assign the same weighted value to all coordinates within each county
-    return [(grid_lat[i], grid_lon[i], weighted_values[i]) for i in range(len(grid_lat))]
+    # Calculate the mean of weighted values using NumPy
+    mean_weighted_value = np.mean(weighted_values)
+
+    return mean_weighted_value
 
 def time_period_request(request):
     return
