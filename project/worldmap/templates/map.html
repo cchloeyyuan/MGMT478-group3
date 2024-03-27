@@ -141,10 +141,10 @@
               
 
               <!-- Data display Section -->   
-              <div id="date-geo" class="about tab-content">
+              
                   
                 <!-- Date Range Inputs -->
-                  
+                <div id="date-geo" class="about tab-content">
                 <form id="dateRangeForm" method="post" action="{% url 'time_period_request' %}" class="px-4 py-3">
                   {% csrf_token %}
                   <div class="form-group">
@@ -546,8 +546,7 @@ document.getElementById('your-form-id').addEventListener('submit', function(even
   });
 });
 
-
-
+/*
 function submitContactForm() {
   $.ajax({
     type: 'POST',
@@ -572,6 +571,7 @@ function submitContactForm() {
       alert('An error occurred while sending your message. Please try again later.');
     }
   });
+*/
 
 function showError(error) {
   // Show error handling logic, possibly modify the content of a '.error-message' div and display it
@@ -600,6 +600,7 @@ $(document).ready(function() {
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 });
+
 </script>
 
   
