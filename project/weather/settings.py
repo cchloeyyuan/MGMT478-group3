@@ -117,12 +117,12 @@ USE_TZ = True
 
 
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # 使用SMTP后端
-EMAIL_HOST = 'smtp.gmail.com'  # 您的邮件服务提供商的SMTP服务器地址
-EMAIL_PORT = 587  # 邮件服务提供商的SMTP服务器端口，通常是587用于TLS
-EMAIL_USE_TLS = True  # 是否使用TLS安全连接
-EMAIL_HOST_USER = 'winniewei21@gmail.com'  # 发送邮件的邮箱账号
-EMAIL_HOST_PASSWORD = 'gbmu aiop cvzt kzdn'  # 发送邮件的邮箱密码
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # use SMTP Backedn
+EMAIL_HOST = 'smtp.gmail.com'  # google SMTP server
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
+EMAIL_HOST_USER = 'winniewei21@gmail.com'  # my personal email 
+EMAIL_HOST_PASSWORD = 'gbmu aiop cvzt kzdn'  # Special password only for auto sent
 
 
 #Static files (CSS, JavaScript, Images)

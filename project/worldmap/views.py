@@ -21,14 +21,15 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import warnings
 from shapely.geometry import Polygon
+from .forms import TimePeriodForm
 
 
 def map_view(request):
     # Get weather station data from the model
     weather_stations = WeatherData.objects.all()
     url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
-    file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
-    df = pd.read_csv(file_path)
+    #file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
+    df = pd.read_csv(url)
 
     # If data doesn't exist in the database, insert it
     if not weather_stations:
@@ -137,26 +138,24 @@ def contact(request):
         recipient_email = request.POST.get('recipient')  # 
         try:
             send_mail(
-                f"Reply {subject}",
+                f"Reply to {subject}",
                 f"Dear {name},\n\n"
                 f"Thanks for your message.\n\n"
                 f"This email means we have received your message and will get back to you as soon as possible.\n\n"
                 f"Appreciate your time! \n\n\n "
-                f"------------------------Below is the orginal message we received -------------------------\n\n"
+                f"------------------------Below is the orginal message we received -----------------------------\n\n"
                 f"Name: {name}\n\nEmail: {sender_email}\n\nMessage: {message}",
-                sender_email,  # 这将作为回复地址
-                [recipient_email],  # 发送到用户输入的这个地址
+                sender_email,  # reply adress
+                [recipient_email],  # target email adress
                 fail_silently=False,
                 
             )
-
-            
-
-            return HttpResponse('Your message has been sent. Thank you!')
+            return JsonResponse({'success': True})
         except Exception as e:
-            return HttpResponse(f'An error occurred: {e}')
+            # if fail use JsonResponse tu return message
+            return JsonResponse({'success': False, 'error': str(e)})
 
-    return HttpResponse('This endpoint only accepts POST requests.')
+    return JsonResponse({'success': False, 'error': 'This endpoint only accepts POST requests.'})
 
     #map_html = my_map._repr_html_()
     #return render(request, 'map.html', {'form': form, 'map_html': map_html})
@@ -194,4 +193,30 @@ def heatmap(station_averages, county_coords, color_value):
     return mean_weighted_value
 
 def time_period_request(request):
-    return
+    # If it's a GET request or the form is not valid, render the page with the form and any data
+    form = TimePeriodForm(request.POST)  # Initialize form with POST data or None
+    data_for_period = None
+    
+    
+    if request.method == 'POST':
+        # Initialize the form with POST data
+        form = TimePeriodForm(request.POST)
+        if form.is_valid():
+            # Extract the time period information from the form
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+
+            # Query your data model to find data within the time period
+            data_for_period = WeatherData.objects.filter(
+                DATE__gte=start_date, 
+                DATE__lte=end_date
+            )
+        # In case the form is not valid, 'form' context will carry the errors
+        # If it's valid, 'data_for_period' will carry the filtered data
+
+    # Render the same 'map.html' for both GET and POST requests
+    # This will ensure that the form persists with the user's input or with errors
+    return render(request, 'map.html', {
+        'form': form,
+        'data': data_for_period
+    })
