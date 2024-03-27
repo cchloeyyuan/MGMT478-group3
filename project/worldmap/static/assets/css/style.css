@@ -725,7 +725,7 @@ section {
   padding: 0; /* Remove padding */
   margin-top: 20px; /* Top margin */
   margin-right: 10px; /* Right margin, match the left margin of control panel */
-  margin-left: 20px;
+  margin-left: 60px;
   height: auto; /* Height based on the width of the viewport */
   max-height: 547px; /* You can set a max height if you want */
   min-height: 400px;
