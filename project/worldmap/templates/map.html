@@ -150,9 +150,10 @@
                   <div class="form-group">
                       <h5>Time Period</h5>
                       <label for="{{ form.start_date.id_for_label }}">From:</label>
-                      {{ form.start_date}}
+                      <input type="date" class="form-control" id="From" name="From" value="{{ form.start_date}}}">
+                     
                       <label for="{{ form.end_date.id_for_label }}">To:</label>
-                      {{ form.end_date }}
+                      <input type="date" class="form-control" id="To" name="To" value="{{ form.end_date }}">
                   <button type="submit" class="btn btn-primary">Submit Date</button>
                 </form>
               </div>
