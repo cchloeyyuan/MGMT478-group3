@@ -179,7 +179,8 @@ def heatmap(station_averages, county_coords, color_value):
         # Get the distances to the closest stations
         distances = knn_model.kneighbors()[0]
         # Calculate the weights based on the inverse of distance
-        weights = 1 / (0.65+distances)
+        weights = 1 / distances
+        weights = weights/sum(weights)
 
         # Get the values from closest, second closest, and third closest stations
         closest_station_value = station_averages.iloc[index_set[0]][color_value]
