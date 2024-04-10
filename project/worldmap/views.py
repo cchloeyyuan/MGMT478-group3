@@ -2,7 +2,7 @@
 from django.shortcuts import render
 import folium
 from folium.plugins import HeatMap
-from .models import WeatherData
+from .models import GlobalData
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
@@ -26,35 +26,32 @@ from .forms import TimePeriodForm
 
 def map_view(request):
     # Get weather station data from the model
-    weather_stations = WeatherData.objects.all()
-    url = 'https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv'
-    #file_path = r"C:\Users\caleb\OneDrive\Desktop\Indiana Weather Data.csv"
-    df = pd.read_csv(url)
-
-    # If data doesn't exist in the database, insert it
-    if not weather_stations:
-        # Convert DataFrame to a list of dictionaries and create WeatherData objects
-        data_to_insert = df.dropna().to_dict(orient='records')
-        WeatherData.objects.bulk_create([WeatherData(**data) for data in data_to_insert])
-
+    weather_stations = GlobalData.objects.all()
+    # Convert the QuerySet to a Pandas DataFrame
+    df = pd.DataFrame(list(weather_stations.values()))
+ 
+    # Check if the DataFrame is empty
+    if not df.empty:
+        # Create a Folium map centered at the first station's location
+        my_map = folium.Map(location=[df.iloc[0]['Latitude'], df.iloc[0]['Longitude']], zoom_start=10)
+        
     # Create a Folium map centered at the first station's location
-    my_map = folium.Map(location=[weather_stations.first().LATITUDE, weather_stations.first().LONGITUDE], zoom_start=10)
+    my_map = folium.Map(location=[weather_stations.first().Latitude, weather_stations.first().Longitude], zoom_start=10)
     
     # Calculate average weather statistics for each station
     # Assuming your 'STATION' field is a unique identifier for each station
-    numeric_cols = ['AWND', 'PRCP', 'SNOW', 'TAVG', 'TMIN', 'TMAX']
+    numeric_cols = ['AWND', 'PRCP', 'TAVG', 'TMIN', 'TMAX']
     df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-    station_averages = df.groupby('STATION').agg({
-        'NAME': 'first',
-        'LATITUDE': 'first', 
-        'LONGITUDE': 'first',
+    station_averages = df.groupby('station_id').agg({
+        'station_id': 'first',
+        'Latitude': 'first',
+        'Longitude': 'first',
         'AWND': 'mean',
         'PRCP': 'mean',
-        'SNOW': 'mean',
         'TAVG': 'mean',
         'TMIN': 'mean',
         'TMAX': 'mean'
-    }).reset_index()
+    }).reset_index(drop=True)
 
     desired_state_code = "18" #This is the state code value that specifies which counties to perform KNN on
     desired_color_value = "PRCP" # This is the column name that is used for the values of the heatmap
@@ -71,8 +68,8 @@ def map_view(request):
 
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
-        popup_text = f"{row['STATION']}<br>Name: {row['NAME']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
-        folium.Marker([row['LATITUDE'], row['LONGITUDE']], popup=popup_text).add_to(my_map)
+        popup_text = f"{row['station_id']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
+        folium.Marker([row['Latitude'], row['Longitude']], popup=popup_text).add_to(my_map)
 
     # # Create Folium map
         # Add choropleth layer to the map
@@ -171,7 +168,7 @@ def heatmap(station_averages, county_coords, color_value):
 
     # Fit KNN model on station coordinates
     warnings.filterwarnings("ignore", category=UserWarning)
-    knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['LATITUDE', 'LONGITUDE']])
+    knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['Latitude', 'Longitude']])
 
     # Find indices of the 3 closest stations for each grid point
     _, indices = knn_model.kneighbors(np.column_stack((latitudes, longitudes)))
