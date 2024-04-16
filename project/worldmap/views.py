@@ -214,7 +214,7 @@ def time_period_request(request):
             end_date = form.cleaned_data['end_date']
 
             # Query your data model to find data within the time period
-            data_for_period = WeatherData.objects.filter(
+            data_for_period = weather_stations.objects.filter(
                 DATE__gte=start_date, 
                 DATE__lte=end_date
             )
