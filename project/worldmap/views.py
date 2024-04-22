@@ -72,7 +72,7 @@ def map_view(request):
     # Add marker for each unique weather station with average values
     for index, row in station_averages.iterrows():
         popup_text = f"{row['station_id']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
-        folium.Marker([row['Latitude'], row['Longitude']], popup=popup_text).add_to(my_map)
+        #folium.Marker([row['Latitude'], row['Longitude']], popup=popup_text).add_to(my_map)
 
     # # Create Folium map
         # Add choropleth layer to the map
@@ -88,6 +88,37 @@ def map_view(request):
         legend_name='Average Precipitation (mm)'
     ).add_to(my_map)
 
+
+
+    style_function = lambda x: {'fillColor': '#ffffff', 
+                            'color':'#000000', 
+                            'fillOpacity': 0.1, 
+                            'weight': 0.1}
+
+    highlight_function = lambda x: {'fillColor': '#000000', 
+                                'color':'#000000', 
+                                'fillOpacity': 0.50, 
+                                'weight': 0.1}
+    print(heatmap_df)
+    NIL = folium.features.GeoJson(
+        heatmap_df,
+        style_function=style_function, 
+        control=False,
+        highlight_function=highlight_function, 
+        tooltip=folium.features.GeoJsonTooltip(
+            fields=['NAME','Measure'],
+            aliases=['State code: ','Precipitation average in mm:  '],
+            style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
+        )
+    )
+    my_map.add_child(NIL)
+    my_map.keep_in_front(NIL)
+    
+    
+    # Add dark and light mode. 
+    folium.TileLayer('cartodbdark_matter',name="dark mode",control=True).add_to(my_map)
+    folium.TileLayer('cartodbpositron',name="light mode",control=True).add_to(my_map)
+    
     # Add layer control
     folium.LayerControl().add_to(my_map)
     # Convert the Folium map to HTML
