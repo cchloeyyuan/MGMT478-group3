@@ -1,6 +1,7 @@
 # views.py
 from django.shortcuts import render
 import folium
+import sys
 from folium.plugins import HeatMap
 from .models import GlobalData
 import pandas as pd
@@ -13,6 +14,7 @@ from django.urls import reverse
 import requests, os
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+from shapely.geometry import Polygon, MultiPolygon
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
@@ -25,6 +27,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LassoCV
 from sklearn.metrics import mean_squared_error
 from sklearn.exceptions import ConvergenceWarning
+from shapely import wkt
 
 
 def map_view(request):
@@ -55,37 +58,47 @@ def map_view(request):
         'TMIN': 'mean',
         'TMAX': 'mean'
     }).reset_index(drop=True)
-
-    desired_state_code = "18" #This is the state code value that specifies which counties to perform KNN on
-    desired_color_value = "PRCP" # This is the column name that is used for the values of the heatmap
-    heatmap_df = gpd.read_file("counties.geojson")
-    heatmap_df['Measure'] = 0 #This creates a new column to store values for the heatmap
-
-    # Loop through each county and apply the heatmap knn function to give it a measure value
-    for index,row in heatmap_df.iterrows():
-        if row['STATEFP'] == desired_state_code:
-            measure = heatmap(station_averages, row['geometry'], desired_color_value)
-            heatmap_df.loc[index, 'Measure'] = measure
-        else:
-            heatmap_df.loc[index, 'Measure'] = 0
-
+    
     # Add marker for each unique weather station with average values
-    for index, row in station_averages.iterrows():
-        popup_text = f"{row['station_id']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C"
+    #for index, row in station_averages.iterrows():
+        #popup_text = f"{row['station_id']}<br>Avg TMIN: {row['TMIN']}°C<br>Avg TMAX: {row['TMAX']}°C<br>Avg PRCP: {row['PRCP']}(mm)"
         #folium.Marker([row['Latitude'], row['Longitude']], popup=popup_text).add_to(my_map)
+
+
+    # Right now this is the code to update precipitation predicted values
+        #heatmap_df = update_temperature(station_averages)
+        #heatmap_df = update_precipitation(station_averages)
+
+    #Read the statis csv file in. Then convert geometry to be ready to switch to geodataframe. 
+    heatmap_df = pd.read_csv("heatmap_results_final.csv")
+    heatmap_df['geometry'] = heatmap_df['geometry'].apply(wkt.loads)
+    gdf = gpd.GeoDataFrame(heatmap_df, geometry='geometry')
+    gdf.crs = "EPSG:4326"
 
     # # Create Folium map
         # Add choropleth layer to the map
     folium.Choropleth(
-        geo_data=heatmap_df,
-        name='choropleth',
-        data=heatmap_df,
-        columns=['GEOID', 'Measure'],
+        geo_data=gdf,
+        name='Precipitation',
+        data=gdf,
+        columns=['GEOID', 'PRCP Measure'],
         key_on='feature.properties.GEOID',
         fill_color='YlOrRd',  # Change the color scale if needed
         fill_opacity=0.7,
         line_opacity=0.2,
         legend_name='Average Precipitation (mm)'
+    ).add_to(my_map)
+
+    folium.Choropleth(
+        geo_data=gdf,
+        name='Temperature',
+        data=gdf,
+        columns=['GEOID', 'TAVG Measure'],
+        key_on='feature.properties.GEOID',
+        fill_color='YlOrRd',  # Change the color scale if needed
+        fill_opacity=0.7,
+        line_opacity=0.2,
+        legend_name='Average Temperature (C)'
     ).add_to(my_map)
 
 
@@ -99,21 +112,21 @@ def map_view(request):
                                 'color':'#000000', 
                                 'fillOpacity': 0.50, 
                                 'weight': 0.1}
-    print(heatmap_df)
+    
     NIL = folium.features.GeoJson(
-        heatmap_df,
+        gdf,
         style_function=style_function, 
         control=False,
         highlight_function=highlight_function, 
         tooltip=folium.features.GeoJsonTooltip(
-            fields=['NAME','Measure'],
-            aliases=['State code: ','Precipitation average in mm:  '],
+            fields=['NAME','PRCP Measure','TAVG Measure'],
+            aliases=['State code: ','Precipitation average in mm:  ','Average Temperature in C: '],
             style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
         )
     )
+
     my_map.add_child(NIL)
     my_map.keep_in_front(NIL)
-    
     
     # Add dark and light mode. 
     folium.TileLayer('cartodbdark_matter',name="dark mode",control=True).add_to(my_map)
@@ -194,15 +207,21 @@ def contact(request):
 def heatmap(station_averages, county_coords, color_value):
 
     weighted_values = []
-    coordinates = county_coords.exterior.coords
+    if isinstance(county_coords, Polygon) or isinstance(county_coords, MultiPolygon):
+        # Extract all coordinates regardless of Polygon or MultiPolygon
+        if isinstance(county_coords, Polygon):
+            all_coordinates = county_coords.exterior.coords
+        elif isinstance(county_coords, MultiPolygon):
+            all_coordinates = []
+            for poly in county_coords.geoms:
+                all_coordinates.extend(poly.exterior.coords)
 
     # Extract latitude and longitude coordinates
-    latitudes = [coord[1] for coord in coordinates]
-    longitudes = [coord[0] for coord in coordinates]
-
+    latitudes = [coord[1] for coord in all_coordinates]
+    longitudes = [coord[0] for coord in all_coordinates]
     # Fit KNN model on station coordinates
     warnings.filterwarnings("ignore", category=UserWarning)
-    knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['Latitude', 'Longitude']])
+    knn_model = NearestNeighbors(n_neighbors=5).fit(station_averages[['Latitude', 'Longitude']])
 
     # Find indices of the 3 closest stations for each grid point
     _, indices = knn_model.kneighbors(np.column_stack((latitudes, longitudes)))
@@ -210,8 +229,7 @@ def heatmap(station_averages, county_coords, color_value):
         # Get the distances to the closest stations
         distances = knn_model.kneighbors()[0]
         # Calculate the weights based on the inverse of distance
-        weights = 1 / distances
-        weights = weights/sum(weights)
+        weights = 1 / (distances+1.65)
 
         # Get the values from closest, second closest, and third closest stations
         closest_station_value = station_averages.iloc[index_set[0]][color_value]
@@ -400,4 +418,76 @@ def lasso_prediction(data):
     ][['STATION', 'NAME', 'LATITUDE', 'LONGITUDE']].drop_duplicates()
     valid_stations['overall_mse'] = valid_stations.apply(lambda row: lasso_mse(row['LATITUDE'], row['LONGITUDE'], row['STATION']), axis=1)
 
-    
+def update_precipitation(station_averages):
+    null_prcp_stations = station_averages[station_averages['PRCP'].isnull()]
+
+    # Delete rows with null values for 'PRCP'
+    if not null_prcp_stations.empty:
+        print("Stations with null values for Precipitation (PRCP):")
+        print(null_prcp_stations)
+        # Drop rows with null values for 'PRCP'
+        station_averages.dropna(subset=['PRCP'], inplace=True)
+        print("Rows with null values for Precipitation (PRCP) have been deleted.")
+    else:
+        print("No stations found with null values for Precipitation (PRCP).")
+
+    heatmap_df = gpd.read_file("counties.geojson")
+    heatmap_df['PRCP Measure'] = 0 #This creates a new column to store values for the heatmap
+    undesired_state_codes = ["08", "48", "37"]  # These are the states that don't have any stations (Texas, Colorado, and North Carolina)
+    desired_color_value = "PRCP" # This is the column name that is used for the values of the heatmap
+
+    # Loop through each county and apply the heatmap knn function to give it a measure value
+    for index, row in heatmap_df.iterrows():
+        if row['STATEFP'] not in undesired_state_codes:
+            measure = heatmap(station_averages, row['geometry'], desired_color_value)
+            heatmap_df.loc[index, 'PRCP Measure'] = measure
+        else:
+            heatmap_df.drop(index, inplace=True)
+
+    # Read in existing prediction file and assign index to 'NAME' column to update prediction values
+    heatmap_df_existing = pd.read_csv("heatmap_results_final.csv")
+
+    # Update 'TAVG Measure' column in heatmap_df_existing with values from heatmap_df
+    heatmap_df_existing['PRCP Measure'] = heatmap_df['PRCP Measure']
+
+    # Reset the index to make 'NAME' a regular column again
+    heatmap_df_existing.to_csv("heatmap_results_final.csv", index=False)
+
+    return heatmap_df_existing
+
+def update_temperature(station_averages):
+    null_temp_stations = station_averages[station_averages['TAVG'].isnull()]
+
+    # Delete rows with null values for 'PRCP'
+    if not null_temp_stations.empty:
+        print("Stations with null values for Temperature (TAVG):")
+        print(null_temp_stations)
+        # Drop rows with null values for 'PRCP'
+        station_averages.dropna(subset=['TAVG'], inplace=True)
+        print("Rows with null values for Temperature (TAVG) have been deleted.")
+    else:
+        print("No stations found with null values for Temperature (TAVG).")
+
+    heatmap_df = gpd.read_file("counties.geojson")
+    heatmap_df['TAVG Measure'] = 0 #This creates a new column to store values for the heatmap
+    undesired_state_codes = ["08", "48", "37"]  # These are the states that don't have any stations (Texas, Colorado, and North Carolina)
+    desired_color_value = "TAVG" # This is the column name that is used for the values of the heatmap
+
+    # Loop through each county and apply the heatmap knn function to give it a measure value
+    for index, row in heatmap_df.iterrows():
+        if row['STATEFP'] not in undesired_state_codes:
+            measure = heatmap(station_averages, row['geometry'], desired_color_value)
+            heatmap_df.loc[index, 'TAVG Measure'] = measure
+        else:
+            heatmap_df.drop(index, inplace=True)
+
+    # Read in existing prediction file and assign index to 'NAME' column to update prediction values
+    heatmap_df_existing = pd.read_csv("heatmap_results.csv")
+
+    # Update 'TAVG Measure' column in heatmap_df_existing with values from heatmap_df
+    heatmap_df_existing['TAVG Measure'] = heatmap_df['TAVG Measure']
+
+    # Reset the index to make 'NAME' a regular column again
+    heatmap_df_existing.to_csv("heatmap_results_final.csv", index=False)
+
+    return heatmap_df_existing
