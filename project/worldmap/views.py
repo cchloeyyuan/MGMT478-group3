@@ -66,11 +66,12 @@ def map_view(request):
 
 
     # Right now this is the code to update precipitation predicted values
-        #heatmap_df = update_temperature(station_averages)
-        #heatmap_df = update_precipitation(station_averages)
+    #heatmap_df = update_temperature(station_averages)
+    #heatmap_df = update_precipitation(station_averages)
 
     #Read the statis csv file in. Then convert geometry to be ready to switch to geodataframe. 
     heatmap_df = pd.read_csv("heatmap_results_final.csv")
+
     heatmap_df['geometry'] = heatmap_df['geometry'].apply(wkt.loads)
     gdf = gpd.GeoDataFrame(heatmap_df, geometry='geometry')
     gdf.crs = "EPSG:4326"
@@ -120,7 +121,7 @@ def map_view(request):
         highlight_function=highlight_function, 
         tooltip=folium.features.GeoJsonTooltip(
             fields=['NAME','PRCP Measure','TAVG Measure'],
-            aliases=['State code: ','Precipitation average in mm:  ','Average Temperature in C: '],
+            aliases=['County Name: ','Precipitation average in mm:  ','Average Temperature in C: '],
             style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
         )
     )
@@ -221,7 +222,7 @@ def heatmap(station_averages, county_coords, color_value):
     longitudes = [coord[0] for coord in all_coordinates]
     # Fit KNN model on station coordinates
     warnings.filterwarnings("ignore", category=UserWarning)
-    knn_model = NearestNeighbors(n_neighbors=5).fit(station_averages[['Latitude', 'Longitude']])
+    knn_model = NearestNeighbors(n_neighbors=3).fit(station_averages[['Latitude', 'Longitude']])
 
     # Find indices of the 3 closest stations for each grid point
     _, indices = knn_model.kneighbors(np.column_stack((latitudes, longitudes)))
@@ -444,6 +445,7 @@ def update_precipitation(station_averages):
         else:
             heatmap_df.drop(index, inplace=True)
 
+    heatmap_df = heatmap_df.reset_index(drop=True)
     # Read in existing prediction file and assign index to 'NAME' column to update prediction values
     heatmap_df_existing = pd.read_csv("heatmap_results_final.csv")
 
@@ -481,8 +483,9 @@ def update_temperature(station_averages):
         else:
             heatmap_df.drop(index, inplace=True)
 
+    heatmap_df = heatmap_df.reset_index(drop=True)
     # Read in existing prediction file and assign index to 'NAME' column to update prediction values
-    heatmap_df_existing = pd.read_csv("heatmap_results.csv")
+    heatmap_df_existing = pd.read_csv("heatmap_results_final.csv")
 
     # Update 'TAVG Measure' column in heatmap_df_existing with values from heatmap_df
     heatmap_df_existing['TAVG Measure'] = heatmap_df['TAVG Measure']
