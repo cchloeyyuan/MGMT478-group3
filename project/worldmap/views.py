@@ -65,10 +65,6 @@ def map_view(request):
         #folium.Marker([row['Latitude'], row['Longitude']], popup=popup_text).add_to(my_map)
 
 
-    # Right now this is the code to update precipitation predicted values
-    #heatmap_df = update_temperature(station_averages)
-    #heatmap_df = update_precipitation(station_averages)
-
     #Read the statis csv file in. Then convert geometry to be ready to switch to geodataframe. 
     heatmap_df = pd.read_csv("heatmap_results_final.csv")
 
@@ -250,6 +246,7 @@ def heatmap(station_averages, county_coords, color_value):
     return mean_weighted_value
 
 def time_period_request(request):
+    weather_stations = GlobalData.objects.all()
     # If it's a GET request or the form is not valid, render the page with the form and any data
     form = TimePeriodForm(request.POST)  # Initialize form with POST data or None
     data_for_period = None
@@ -441,7 +438,8 @@ def update_precipitation(station_averages):
     for index, row in heatmap_df.iterrows():
         if row['STATEFP'] not in undesired_state_codes:
             measure = heatmap(station_averages, row['geometry'], desired_color_value)
-            heatmap_df.loc[index, 'PRCP Measure'] = measure
+            rounded_measure = round(measure, 2)
+            heatmap_df.loc[index, 'PRCP Measure'] = rounded_measure
         else:
             heatmap_df.drop(index, inplace=True)
 
@@ -479,7 +477,8 @@ def update_temperature(station_averages):
     for index, row in heatmap_df.iterrows():
         if row['STATEFP'] not in undesired_state_codes:
             measure = heatmap(station_averages, row['geometry'], desired_color_value)
-            heatmap_df.loc[index, 'TAVG Measure'] = measure
+            rounded_measure = round(measure, 2)
+            heatmap_df.loc[index, 'TAVG Measure'] = rounded_measure
         else:
             heatmap_df.drop(index, inplace=True)
 
@@ -494,3 +493,34 @@ def update_temperature(station_averages):
     heatmap_df_existing.to_csv("heatmap_results_final.csv", index=False)
 
     return heatmap_df_existing
+
+def update_predictions_request(request):
+    update_predictions()
+    data = {
+        'success': True,
+        'message': 'Predictions updated successfully.'
+    }
+    return JsonResponse(data)
+
+def update_predictions():
+    # Get weather station data from the model
+    weather_stations = GlobalData.objects.all()
+    # Convert the QuerySet to a Pandas DataFrame
+    df = pd.DataFrame(list(weather_stations.values()))
+    numeric_cols = ['AWND', 'PRCP', 'TAVG', 'TMIN', 'TMAX']
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+    station_averages = df.groupby('station_id').agg({
+        'station_id': 'first',
+        'Latitude': 'first',
+        'Longitude': 'first',
+        'AWND': 'mean',
+        'PRCP': 'mean',
+        'TAVG': 'mean',
+        'TMIN': 'mean',
+        'TMAX': 'mean'
+    }).reset_index(drop=True)
+    print("station averages was created")
+    # Right now this is the code to update precipitation predicted values
+    update_temperature(station_averages)
+    update_precipitation(station_averages)
+    return

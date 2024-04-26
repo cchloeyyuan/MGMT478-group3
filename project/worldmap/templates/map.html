@@ -136,8 +136,54 @@
                         <li><a href="#date-geo" > Data Choices</a></li>
                         <li><a href="#Visualization"> Visualization</a></li>
                         <li><a href="#Download"> Download</a></li>
+                        <li><button id="updatedPredictionsBtn"> Update Prediction Values</button></li>
                       </ul>
               </div>
+
+              <script>document.addEventListener('DOMContentLoaded', function() {
+                updatePredictionsButton = document.getElementById('updatedPredictionsBtn');
+                // Add a click event listener to the button
+                updatePredictionsButton.addEventListener('click', function(event) {
+                  // Prevent the default behavior of the button
+                  event.preventDefault();
+                  
+                  // Log a message to the console to confirm that the event listener is triggered
+                  console.log('Update Predictions button clicked');
+                  function getCookie(name) {
+                      const value = `; ${document.cookie}`;
+                      const parts = value.split(`; ${name}=`);
+                      if (parts.length === 2) return parts.pop().split(';').shift();
+                  }
+                  const csrfToken = getCookie('csrftoken')
+                  const data = { key: 'value' };
+                  // Make a request to the update_predictions_request URL
+                  fetch('http://127.0.0.1:8000/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        accept: 'application/json',
+                          'User-agent': 'learning app',
+                    },
+                    body: JSON.stringify(data)
+                  })
+                  .then(response => {
+                    // Check if the response is successful
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+                    // If successful, return the response as JSON
+                    return response.json();
+                  })
+                  .then(data => {
+                    // Handle the JSON response data if needed
+                    console.log(data);
+                  })
+                  .catch(error => {
+                    // Handle any errors that occur during the fetch
+                    console.error('There was a problem with the fetch operation:', error);
+                  });
+                });
+              });</script>
               
 
               <!-- Data display Section -->   
@@ -229,17 +275,17 @@
 
 
 <!-- ======= Prediction  Section ======= -->
-    <div class="section-title" data-aos="fade-in" data-aos-delay="100">
+<!--   <div class="section-title" data-aos="fade-in" data-aos-delay="100">
       <h2>Precition</h2>
       <p></p>
     </div>
     <section id="about" class="about">
       <div class="map-container">
         {{ map_html|safe }}
-      </div>
+      </div> -->
 
       <!-- side panel -->
-      <div class="control-panel">  
+    <!--  <div class="control-panel">  
             <div class = "about navbar">
                     <ul class="about nav-links">
                       <li><a href="#pred"> Predicted Model</a></li>
@@ -248,7 +294,7 @@
                     </ul>
             </div>
             </div>
-          </section>
+          </section> -->
 
     <!-- ======= Team Section ======= -->
     {% load static %}

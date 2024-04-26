@@ -28,5 +28,6 @@ urlpatterns = [
     path('map_request/', map_request, name='map_request'),
     path('contact/', views.contact, name='contact'),
     path('time-period_request/', views.time_period_request, name='time_period_request'),
+    path('', views.update_predictions_request, name='update_predictions_request')
 ]
 
