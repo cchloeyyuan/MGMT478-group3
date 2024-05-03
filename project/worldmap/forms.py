@@ -32,5 +32,5 @@ class CoordinatesForm(forms.Form):
 
 
 class TimePeriodForm(forms.Form):
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'dd/mm/yy'}))
-    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'dd/mm/yy'}))
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'yyyy/mm/dd'}))
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'yyyy/mm/dd'}))

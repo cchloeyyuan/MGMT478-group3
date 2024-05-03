@@ -136,38 +136,56 @@ def map_view(request):
 
     return render(request, 'map.html', {'map_html': map_html})
 
-def map_request(request):
-    # Initialize the map with some default state
-    #my_map = folium.Map(location=[default_latitude, default_longitude], zoom_start=10)
-    form = CoordinatesForm()
+import logging
+logger = logging.getLogger(__name__)
 
-    if request.method == 'POST':
-        form = CoordinatesForm(request.POST)
-        if form.is_valid():
-            latitude = form.cleaned_data['latitude']
-            longitude = form.cleaned_data['longitude']
-            lat_direction = form.cleaned_data['lat_direction']
-            long_direction = form.cleaned_data['long_direction']
+def combined_request(request):
+    context = {}
+    try:
+        if request.method == 'POST':
+            form_type = request.POST.get('form_type')
 
-            # Adjust latitude and longitude based on direction
-            latitude = latitude if lat_direction == 'N' else -latitude
-            longitude = longitude if long_direction == 'E' else -longitude
-            
+            # Handle Geographic Location Form
+            if form_type == 'geo_location':
+                geo_form = CoordinatesForm(request.POST)
+                if geo_form.is_valid():
+                    # Process the geographic data
+                    latitude = geo_form.cleaned_data['latitude']
+                    longitude = geo_form.cleaned_data['longitude']
+                    lat_direction = geo_form.cleaned_data['lat_direction']
+                    long_direction = geo_form.cleaned_data['long_direction']
 
-            my_map = folium.Map(location=[float(latitude), float(longitude)], zoom_start=14)
-            folium.Marker([float(latitude), float(longitude)], popup="Your Location").add_to(my_map)
-            map_html = my_map._repr_html_()
-            
-            return render(request, 'map.html', {'map_html': map_html})
-            
-        else:
-            # 如果是GET请求，仅渲染带有空表单的页面
-            # If it's a GET request, only render the page with the empty form
-            form = CoordinatesForm()
-            return render(request, 'map.html', {'form': form})# Create a new map object with the submitted coordinates
-            #my_map = folium.Map(location=[latitude, longitude], zoom_start=14)
-            #folium.Marker([latitude, longitude], popup="Your Location").add_to(my_map)
+                    latitude = latitude if lat_direction == 'N' else -latitude
+                    longitude = longitude if long_direction == 'E' else -longitude
 
+                    my_map = folium.Map(location=[float(latitude), float(longitude)], zoom_start=14)
+                    folium.Marker([float(latitude), float(longitude)], popup="Your Location").add_to(my_map)
+                    context['map_html'] = my_map._repr_html_()
+                else:
+                    context['geo_form'] = geo_form
+
+            # Handle Date Range Form
+            elif form_type == 'date_range':
+                date_form = TimePeriodForm(request.POST)
+                if date_form.is_valid():
+                    # Process the date range data
+                    start_date = date_form.cleaned_data['start_date']
+                    end_date = date_form.cleaned_data['end_date']
+
+                    data_for_period = GlobalData.objects.filter(date_recorded__gte=start_date, date_recorded__lte=end_date)
+                    context['data'] = data_for_period
+                else:
+                    context['date_form'] = date_form
+
+        # Ensure both forms are always in context, either as new or with errors
+        context.setdefault('geo_form', CoordinatesForm())
+        context.setdefault('date_form', TimePeriodForm())
+
+        return render(request, 'map.html', context)
+    
+    except Exception as e:
+        logger.error(f"An error occurred while processing the form:{str(e)}")
+        raise
 
 @csrf_exempt
 def contact(request):
@@ -191,12 +209,12 @@ def contact(request):
                 fail_silently=False,
                 
             )
-            return JsonResponse({'success': True})
+            return HttpResponse(status=204)  # No content to return
         except Exception as e:
-            # if fail use JsonResponse tu return message
-            return JsonResponse({'success': False, 'error': str(e)})
+            # If fail use JsonResponse to return message
+            return HttpResponse(status=204)
 
-    return JsonResponse({'success': False, 'error': 'This endpoint only accepts POST requests.'})
+    return HttpResponse(status=204)
 
     #map_html = my_map._repr_html_()
     #return render(request, 'map.html', {'form': form, 'map_html': map_html})
@@ -244,36 +262,6 @@ def heatmap(station_averages, county_coords, color_value):
     mean_weighted_value = np.mean(weighted_values)
 
     return mean_weighted_value
-
-def time_period_request(request):
-    weather_stations = GlobalData.objects.all()
-    # If it's a GET request or the form is not valid, render the page with the form and any data
-    form = TimePeriodForm(request.POST)  # Initialize form with POST data or None
-    data_for_period = None
-    
-    
-    if request.method == 'POST':
-        # Initialize the form with POST data
-        form = TimePeriodForm(request.POST)
-        if form.is_valid():
-            # Extract the time period information from the form
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-
-            # Query your data model to find data within the time period
-            data_for_period = weather_stations.objects.filter(
-                DATE__gte=start_date, 
-                DATE__lte=end_date
-            )
-        # In case the form is not valid, 'form' context will carry the errors
-        # If it's valid, 'data_for_period' will carry the filtered data
-
-    # Render the same 'map.html' for both GET and POST requests
-    # This will ensure that the form persists with the user's input or with errors
-    return render(request, 'map.html', {
-        'form': form,
-        'data': data_for_period
-    })
 
 def lasso_prediction(data):
     data['DATE'] = pd.to_datetime(data['DATE'])
