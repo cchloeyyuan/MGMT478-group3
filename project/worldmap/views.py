@@ -207,8 +207,8 @@ def contact(request):
                 sender_email,  # reply adress
                 [recipient_email],  # target email adress
                 fail_silently=False,
-                
             )
+
             return HttpResponse(status=204)  # No content to return
         except Exception as e:
             # If fail use JsonResponse to return message
@@ -216,8 +216,6 @@ def contact(request):
 
     return HttpResponse(status=204)
 
-    #map_html = my_map._repr_html_()
-    #return render(request, 'map.html', {'form': form, 'map_html': map_html})
 
 def heatmap(station_averages, county_coords, color_value):
 

@@ -111,8 +111,7 @@
               <div class = "about navbar">
                       <ul class="about nav-links">
                         <li><a href="#date-geo" > Data Choices</a></li>
-<!---                       <li><a href="#Visualization"> Visualization</a></li>  -->
-                        <li><a href="#Download"> Download</a></li>
+                        <li><a href="#" id="navDownloadBtn">Download</a></li>
                         <li><button id="updatedPredictionsBtn"> Update Prediction Values</button></li>
                       </ul>
               </div>
@@ -163,10 +162,11 @@
               });</script>
               
 
+
+
                    
-                  <form id="combinedForm" method="post" action="{% url 'combined_request' %}" class="px-4 py-3" novalidate>
+            <form id="combinedForm" method="post" action="{% url 'combined_request' %}" class="px-4 py-3">
                     {% csrf_token %}
-                    
                     <!-- Date Range Inputs -->
                     <input type="hidden" name="form_type" value="date_range" >
                     <!-- Date Range Inputs -->
@@ -206,8 +206,7 @@
                     <div style="text-align: right;">
                     <button type="submit" class="btn btn-primary">Submit Location</button>
                   </div>
-                </form>
-                            
+                </form>          
 
               <!--dowonload Section -->   
               <div id="Download" class="tab-content">
@@ -215,8 +214,9 @@
                   
                 <button id="downloadBtn" class="btn btn-primary">Download</button>
 
-                  <script>
-                  document.getElementById('downloadBtn').addEventListener('click', function() {
+                <script>
+                  document.getElementById('navDownloadBtn').addEventListener('click', function(event) {
+                      event.preventDefault(); // 阻止默认行为
                       fetch('https://raw.githubusercontent.com/cchloeyyuan/MGMT478-group3/main/Indiana%20Weather%20Data.csv')
                       .then(response => response.blob())
                       .then(blob => {
@@ -369,26 +369,26 @@
           </div>
 
           <div class="col-lg-6">
-            
             <form id="contactForm" method="post" action="{% url 'contact' %}" role="form" class="php-email-form">
               {% csrf_token %}
-              <div class="form-group">
-                  <input type="text" name="name" class="contactform-control" id="name" placeholder="Your Name" required autocomplete="name">
-              </div>
-              <div class="form-group">
-                  <input type="email" class="contactform-control" name="recipient" id="recipient" placeholder="Recipient Email" required autocomplete="email">
-              </div>
-              <div class="form-group">
-                  <input type="text" class="contactform-control" name="subject" id="subject" placeholder="Subject" required autocomplete="off">
-              </div>
-              <div class="form-group">
-                  <textarea class="contactform-control" name="message" rows="5" placeholder="Message" required autocomplete="off"></textarea>
-              </div>
+
+                <div class="form-group">
+                    <input type="text" name="name" class="contactform-control" id="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                      <input type="email" class="contactform-control" name="recipient" id="recipient" placeholder="Recipient Email" required>
+                  </div>
+                <div class="form-group">
+                    <input type="text" class="contactform-control" name="subject" id="subject" placeholder="Subject" required>
+                </div>
+                <div class="form-group">
+                    <textarea class="contactform-control" name="message" rows="5" placeholder="Message" required></textarea>
+                </div>
+              <div class="my-3">
               <div class="text-center">
-                  <button type="submit">Send Message</button>
+                <button type="submit">Send Message</button>
               </div>
-          </form>
-          
+            </form>
           </div>
 
         </div>
@@ -537,14 +537,19 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('contactForm'); // Ensure this matches your form's ID
     form.addEventListener('submit', function(event) {
-        event.preventDefault();
+        
 
         var formData = new FormData(this);
 
-        fetch(form.action, {  // Use form.action to ensure the URL is always correct
-            method: 'POST',
-            body: formData,
-        })
+          fetch(form.action, {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': formData.get('csrfmiddlewaretoken'),  // Ensure CSRF token is sent
+          },
+          body: JSON.stringify(Object.fromEntries(formData)),
+      })
+
         .then(response => response.json())
         .then(data => {
             if(data.success) {
